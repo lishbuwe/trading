@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>交易系统</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #0c0c0c;
+    --surface: #141414;
+    --surface2: #1c1c1c;
+    --border: #2a2a2a;
+    --gold: #c9a84c;
+    --gold-dim: rgba(201,168,76,0.12);
+    --red: #d94f4f;
+    --green: #4fa866;
+    --text: #e5e5dd;
+    --text-dim: #888880;
+    --text-muted: #484840;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans SC', sans-serif;
+    font-weight: 300;
+    line-height: 1.9;
+    min-height: 100vh;
+  }
+
+  /* ── 顶部导航 ── */
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(12,12,12,0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 1.5rem;
+    height: 52px;
+    gap: 0;
+  }
+
+  .topbar-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 0.82rem;
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    margin-right: auto;
+    font-weight: 700;
+  }
+
+  .tab-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: 0.82rem;
+    letter-spacing: 0.08em;
+    padding: 0 1.2rem;
+    height: 52px;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s;
+  }
+
+  .tab-btn::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 1.2rem; right: 1.2rem;
+    height: 2px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transition: transform 0.2s;
+  }
+
+  .tab-btn.active { color: var(--gold); }
+  .tab-btn.active::after { transform: scaleX(1); }
+
+  /* ── 页面容器 ── */
+  .page { display: none; padding: 0 1rem 5rem; }
+  .page.active { display: block; }
+  .inner { max-width: 680px; margin: 0 auto; }
+
+  /* ── 通用区块 ── */
+  .page-header {
+    text-align: center;
+    padding: 2.5rem 0 2rem;
+  }
+
+  .page-header h2 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--gold);
+    letter-spacing: 0.2em;
+  }
+
+  .page-header p {
+    margin-top: 0.5rem;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 0 0 2rem;
+  }
+
+  /* ══════════════════════════════
+     纪律页
+  ══════════════════════════════ */
+  .chapter { margin-bottom: 2rem; }
+
+  .chapter-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    color: var(--gold);
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .chapter-title::before {
+    content: '';
+    display: inline-block;
+    width: 16px; height: 1px;
+    background: var(--gold);
+    opacity: 0.5;
+  }
+
+  .chapter-title::after {
+    content: ''; flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .rules { display: flex; flex-direction: column; gap: 0.45rem; }
+
+  .rule {
+    display: flex;
+    gap: 0.9rem;
+    padding: 0.85rem 1rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.86rem;
+    line-height: 1.75;
+    align-items: flex-start;
+  }
+
+  .rule.iron { border-left: 2px solid var(--gold); }
+  .rule.danger { border-left: 2px solid var(--red); background: rgba(217,79,79,0.03); }
+  .rule.safe { border-left: 2px solid var(--green); background: rgba(79,168,102,0.03); }
+
+  .rule-num {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    min-width: 18px;
+    padding-top: 0.1rem;
+    flex-shrink: 0;
+  }
+
+  .rule-content { flex: 1; }
+  .rule-content strong { color: var(--text); font-weight: 500; }
+
+  .tag {
+    display: inline-block;
+    font-size: 0.68rem;
+    padding: 0.1rem 0.45rem;
+    border-radius: 3px;
+    margin-right: 0.35rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    vertical-align: middle;
+  }
+
+  .tag.red { background: rgba(217,79,79,0.15); color: var(--red); }
+  .tag.green { background: rgba(79,168,102,0.15); color: var(--green); }
+  .tag.gold { background: var(--gold-dim); color: var(--gold); }
+
+  .sell-flow {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .flow-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.86rem;
+  }
+
+  .flow-item:last-child { border-bottom: none; }
+
+  .flow-trigger {
+    font-size: 0.76rem;
+    color: var(--text-dim);
+    min-width: 136px;
+    flex-shrink: 0;
+    padding-top: 0.05rem;
+  }
+
+  .flow-action { color: var(--text); }
+  .flow-action.red { color: var(--red); }
+  .flow-action.gold { color: var(--gold); }
+
+  .priority-note {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.6rem;
+    padding: 0.55rem 0.8rem;
+    background: var(--surface);
+    border-radius: 4px;
+    border-left: 2px solid var(--text-muted);
+  }
+
+  .mantra {
+    margin-top: 1.5rem;
+    padding: 1.8rem 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--gold);
+    border-radius: 8px;
+    text-align: center;
+    position: relative;
+  }
+
+  .mantra::before {
+    content: '口诀';
+    position: absolute;
+    top: 0.7rem; left: 1rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+  }
+
+  .mantra p {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 0.95rem;
+    line-height: 2.3;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+  }
+
+  .mantra p strong { color: var(--gold); font-weight: 600; }
+
+  /* ══════════════════════════════
+     复盘页
+  ══════════════════════════════ */
+  section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.3rem;
+    margin-bottom: 1rem;
+  }
+
+  section h3 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  section h3::before {
+    content: '';
+    display: inline-block;
+    width: 3px; height: 13px;
+    background: var(--gold);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .pnl-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.6rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .pnl-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 0.7rem 0.5rem;
+    text-align: center;
+  }
+
+  .pnl-item label {
+    display: block;
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+    letter-spacing: 0.04em;
+  }
+
+  .pnl-item input {
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-size: 1rem;
+    font-weight: 500;
+    text-align: center;
+    width: 100%;
+    outline: none;
+    font-family: inherit;
+  }
+
+  .pnl-item input::placeholder { color: var(--text-muted); font-size: 0.85rem; }
+  .pnl-item.up input { color: var(--green); }
+  .pnl-item.down input { color: var(--red); }
+
+  .trade-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+
+  .trade-table th {
+    color: var(--text-muted);
+    font-weight: 400;
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    padding: 0.35rem 0.5rem;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+  }
+
+  .trade-table td {
+    padding: 0.55rem 0.4rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .trade-table tr:last-child td { border-bottom: none; }
+
+  .trade-table td input,
+  .trade-table td select {
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.82rem;
+    width: 100%;
+    outline: none;
+  }
+
+  .trade-table td select option { background: var(--surface2); }
+
+  .add-row {
+    background: transparent;
+    border: 1px dashed var(--border);
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: 0.76rem;
+    padding: 0.45rem;
+    width: 100%;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-top: 0.5rem;
+    transition: all 0.2s;
+    letter-spacing: 0.04em;
+  }
+
+  .add-row:hover { border-color: var(--gold); color: var(--gold); }
+
+  textarea {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.85rem;
+    line-height: 1.85;
+    padding: 0.7rem 0.9rem;
+    width: 100%;
+    resize: vertical;
+    outline: none;
+    min-height: 90px;
+    transition: border-color 0.2s;
+  }
+
+  textarea:focus { border-color: var(--gold); }
+  textarea::placeholder { color: var(--text-muted); }
+
+  .rule-check { display: flex; flex-direction: column; gap: 0.5rem; }
+
+  .rule-item {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.55rem 0.8rem;
+    background: var(--surface2);
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    font-size: 0.84rem;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .rule-item:hover { border-color: var(--gold-dim); }
+
+  .rule-item input[type="checkbox"] {
+    appearance: none;
+    width: 15px; height: 15px;
+    border: 1.5px solid var(--border);
+    border-radius: 3px;
+    cursor: pointer;
+    position: relative;
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  .rule-item input[type="checkbox"]:checked {
+    background: var(--gold);
+    border-color: var(--gold);
+  }
+
+  .rule-item input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    color: #0c0c0c;
+    font-size: 10px;
+    font-weight: 700;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  .emotion-bar { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.6rem; }
+
+  .emotion-tag {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 0.25rem 0.7rem;
+    font-size: 0.76rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text-muted);
+    user-select: none;
+  }
+
+  .emotion-tag.active {
+    background: var(--gold-dim);
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  .score-row {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-top: 0.8rem;
+  }
+
+  .score-row label { font-size: 0.78rem; color: var(--text-muted); white-space: nowrap; }
+
+  .stars { display: flex; gap: 0.25rem; }
+
+  .star {
+    font-size: 1rem;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: color 0.15s;
+    user-select: none;
+  }
+
+  .star.active { color: var(--gold); }
+
+  .hint {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 0.4rem;
+    font-style: italic;
+  }
+
+  .month-row {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .month-row label { font-size: 0.8rem; color: var(--text-dim); }
+
+  .month-row input[type="month"] {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.35rem 0.7rem;
+    font-family: inherit;
+    font-size: 0.85rem;
+    border-radius: 4px;
+    outline: none;
+  }
+
+  .month-row input[type="month"]:focus { border-color: var(--gold); }
+
+  .save-btn {
+    background: var(--gold);
+    border: none;
+    border-radius: 6px;
+    color: #0c0c0c;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    padding: 0.75rem 2rem;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 0.3rem;
+    transition: opacity 0.2s;
+  }
+
+  .save-btn:hover { opacity: 0.85; }
+
+  @media print {
+    .topbar { display: none; }
+    body { background: white; color: black; }
+    section, .sell-flow, .rule, .mantra { border-color: #ccc !important; background: white !important; }
+    textarea, input { color: black !important; }
+    .save-btn, .add-row { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- 顶部导航 -->
+<div class="topbar">
+  <span class="topbar-title">交易系统</span>
+  <button class="tab-btn active" onclick="switchTab('rules')">交易纪律</button>
+  <button class="tab-btn" onclick="switchTab('journal')">复盘月记</button>
+</div>
+
+<!-- ══ 纪律页 ══ -->
+<div id="page-rules" class="page active">
+  <div class="inner">
+    <div class="page-header">
+      <h2>完整闭环交易纪律</h2>
+      <p>封存版 — 每笔买卖照此执行，不议</p>
+    </div>
+    <div class="divider"></div>
+
+    <!-- 一、底层铁律 -->
+    <div class="chapter">
+      <div class="chapter-title">一　底层铁律</div>
+      <div class="rules">
+        <div class="rule iron"><span class="rule-num">01</span><div class="rule-content">只做 10cm 股，只玩右侧趋势，不左侧阴跌抄底</div></div>
+        <div class="rule iron"><span class="rule-num">02</span><div class="rule-content">持仓永久 ≤ 3 只，想买新票必须先清旧票，绝不开超市</div></div>
+        <div class="rule iron"><span class="rule-num">03</span><div class="rule-content">选票必须<strong>逻辑面 + 技术面</strong>双达标，缺一不买</div></div>
+        <div class="rule iron"><span class="rule-num">04</span><div class="rule-content">不意淫目标价、不硬扛、不格局，按规则执行</div></div>
+        <div class="rule iron"><span class="rule-num">05</span><div class="rule-content">单只仓位上限 <strong>65%</strong>，全程分仓，不梭哈</div></div>
+      </div>
+    </div>
+
+    <!-- 二、买入纪律 -->
+    <div class="chapter">
+      <div class="chapter-title">二　买入纪律</div>
+      <div class="rules">
+        <div class="rule safe">
+          <span class="rule-num">稳</span>
+          <div class="rule-content"><span class="tag green">标准入场</span>回踩 5 日线企稳低吸，或第一次回踩 10 日线企稳低吸</div>
+        </div>
+        <div class="rule safe">
+          <span class="rule-num">加分</span>
+          <div class="rule-content"><span class="tag gold">指标共振</span>5/10 均线金叉 · KDJ 低位金叉 · MACD 低位/零轴良性金叉 · 布林带中轨向上通道开口</div>
+        </div>
+        <div class="rule">
+          <span class="rule-num">激进</span>
+          <div class="rule-content">
+            <span class="tag gold">允许</span>主线抱团强势票，分时顺势跟瞬间拉升<br>
+            <span style="font-size:0.78rem;color:var(--text-muted)">前提：日线站稳 5/10 线 + 有板块联动，不做孤立杂毛</span>
+          </div>
+        </div>
+        <div class="rule danger">
+          <span class="rule-num">禁</span>
+          <div class="rule-content">
+            <span class="tag red">绝对不买</span><br>
+            · 暴涨严重脱离均线的高位票，不场外新开<br>
+            · 收盘已破 10 日线的个股，再便宜不碰<br>
+            · 冷门杂毛、无板块共鸣孤票<br>
+            · 满 3 只持仓时，不清旧绝不加新
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 三、卖出纪律 -->
+    <div class="chapter">
+      <div class="chapter-title">三　卖出纪律</div>
+      <div class="sell-flow">
+        <div class="flow-item">
+          <span class="flow-trigger">单日收盘破 5 日线</span>
+          <span class="flow-action gold">观察，不动</span>
+        </div>
+        <div class="flow-item">
+          <span class="flow-trigger">连收两日破 5 日线</span>
+          <span class="flow-action">第二天尾盘减仓<br><span style="font-size:0.76rem;color:var(--text-muted)">中途收盘重新站回 5 日线，解除破5状态</span></span>
+        </div>
+        <div class="flow-item">
+          <span class="flow-trigger">单日收盘有效破 10 日线</span>
+          <span class="flow-action red">当天尾盘清仓，无视盈亏</span>
+        </div>
+        <div class="flow-item">
+          <span class="flow-trigger">盘中跌停式暴跌</span>
+          <span class="flow-action red">不等收盘，直接清仓</span>
+        </div>
+      </div>
+      <div class="priority-note">
+        优先级：跌停暴跌 ＞ 破10日线清仓 ＞ 连两日破5减仓<br>
+        每天收盘前必查一次持仓均线状态
+      </div>
+    </div>
+
+    <!-- 口诀 -->
+    <div class="mantra">
+      <p>
+        <strong>连收两日破五再减，</strong><br>
+        <strong>单日破十当天清；</strong><br>
+        持仓不超三只票，<br>
+        卖旧才能换新丁；<br>
+        三金布林做低吸，<br>
+        高位离线不追新。
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 复盘页 ══ -->
+<div id="page-journal" class="page">
+  <div class="inner">
+    <div class="page-header">
+      <h2>复盘月记</h2>
+      <p>每月一份，照实填写</p>
+    </div>
+    <div class="divider"></div>
+
+    <div class="month-row">
+      <label>复盘月份</label>
+      <input type="month" id="monthInput">
+    </div>
+
+    <!-- 收益概况 -->
+    <section>
+      <h3>收益概况</h3>
+      <div class="pnl-grid">
+        <div class="pnl-item up"><label>本月盈亏（元）</label><input type="text" placeholder="+0"></div>
+        <div class="pnl-item"><label>盈亏比（%）</label><input type="text" placeholder="0%"></div>
+        <div class="pnl-item"><label>操作次数</label><input type="text" placeholder="0"></div>
+      </div>
+      <div class="pnl-grid">
+        <div class="pnl-item up"><label>盈利笔数</label><input type="text" placeholder="0"></div>
+        <div class="pnl-item down"><label>亏损笔数</label><input type="text" placeholder="0"></div>
+        <div class="pnl-item"><label>胜率</label><input type="text" placeholder="0%"></div>
+      </div>
+    </section>
+
+    <!-- 交易记录 -->
+    <section>
+      <h3>本月交易记录</h3>
+      <table class="trade-table">
+        <thead>
+          <tr>
+            <th>日期</th><th>股票</th><th>方向</th><th>入场理由</th><th>结果</th><th>盈亏%</th>
+          </tr>
+        </thead>
+        <tbody id="tradeBody">
+          <tr>
+            <td><input type="text" placeholder="mm/dd"></td>
+            <td><input type="text" placeholder="票名"></td>
+            <td><select><option value="">-</option><option>入场</option><option>加仓</option><option>减仓</option><option>清仓</option></select></td>
+            <td><input type="text" placeholder="金叉回踩..."></td>
+            <td><select><option value="">-</option><option>盈利</option><option>亏损</option><option>持仓中</option></select></td>
+            <td><input type="text" placeholder="±%"></td>
+          </tr>
+        </tbody>
+      </table>
+      <button class="add-row" onclick="addTradeRow()">＋ 添加记录</button>
+    </section>
+
+    <!-- 规则执行 -->
+    <section>
+      <h3>规则执行检查</h3>
+      <div class="rule-check">
+        <label class="rule-item"><input type="checkbox"> 入场前确认板块热度 + 基本面</label>
+        <label class="rule-item"><input type="checkbox"> 入场信号：均线金叉 + KDJ金叉 + MACD上行</label>
+        <label class="rule-item"><input type="checkbox"> 突破放量确认，非缩量假突破</label>
+        <label class="rule-item"><input type="checkbox"> 连两日破5已尾盘减仓</label>
+        <label class="rule-item"><input type="checkbox"> 单日破10已当天尾盘清仓</label>
+        <label class="rule-item"><input type="checkbox"> 单只仓位未超65%</label>
+        <label class="rule-item"><input type="checkbox"> 持仓未超3只</label>
+        <label class="rule-item"><input type="checkbox"> 本月无冲动追热点乱买</label>
+      </div>
+      <div class="score-row">
+        <label>执行评分</label>
+        <div class="stars" id="stars">
+          <span class="star" onclick="setStar(1)">★</span>
+          <span class="star" onclick="setStar(2)">★</span>
+          <span class="star" onclick="setStar(3)">★</span>
+          <span class="star" onclick="setStar(4)">★</span>
+          <span class="star" onclick="setStar(5)">★</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 最佳操作 -->
+    <section>
+      <h3>本月最佳操作</h3>
+      <textarea placeholder="哪笔最符合规则？入场理由、执行过程、结果..."></textarea>
+    </section>
+
+    <!-- 踩坑记录 -->
+    <section>
+      <h3>踩坑记录</h3>
+      <textarea placeholder="哪笔违反了规则？当时的情绪是什么？下次如何避免..."></textarea>
+    </section>
+
+    <!-- 情绪管理 -->
+    <section>
+      <h3>情绪管理</h3>
+      <p style="font-size:0.78rem;color:var(--text-muted)">本月主要情绪（可多选）</p>
+      <div class="emotion-bar">
+        <span class="emotion-tag" onclick="toggleEmotion(this)">😤 手痒冲动</span>
+        <span class="emotion-tag" onclick="toggleEmotion(this)">😰 恐高追涨</span>
+        <span class="emotion-tag" onclick="toggleEmotion(this)">😓 舍不得割</span>
+        <span class="emotion-tag" onclick="toggleEmotion(this)">😱 踏空懊悔</span>
+        <span class="emotion-tag" onclick="toggleEmotion(this)">😌 执行顺畅</span>
+        <span class="emotion-tag" onclick="toggleEmotion(this)">🎯 纪律良好</span>
+        <span class="emotion-tag" onclick="toggleEmotion(this)">😤 卖飞懊悔</span>
+        <span class="emotion-tag" onclick="toggleEmotion(this)">💪 心态稳健</span>
+      </div>
+      <textarea style="margin-top:0.8rem;min-height:75px" placeholder="情绪对操作的影响..."></textarea>
+    </section>
+
+    <!-- 持仓复盘 -->
+    <section>
+      <h3>月末持仓状态</h3>
+      <textarea placeholder="各票仓位、技术面状态、是否符合持仓逻辑..."></textarea>
+      <p class="hint">参考格式：晶振 30% — 均线多头，等突破前高 | 储能 15% — 站稳5日线，观察中</p>
+    </section>
+
+    <!-- 下月计划 -->
+    <section>
+      <h3>下月重点计划</h3>
+      <textarea placeholder="重点关注板块/票、需改进的执行细节、仓位调整计划..."></textarea>
+    </section>
+
+    <!-- 一句话总结 -->
+    <section>
+      <h3>本月一句话总结</h3>
+      <textarea placeholder="用一句话概括这个月..." style="min-height:60px"></textarea>
+    </section>
+
+    <button class="save-btn" onclick="window.print()">保存本月复盘（打印/存PDF）</button>
+  </div>
+</div>
+
+<script>
+  // 默认月份
+  const mi = document.getElementById('monthInput');
+  const now = new Date();
+  mi.value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+
+  // Tab切换
+  function switchTab(tab) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('page-' + tab).classList.add('active');
+    event.target.classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  // 添加交易记录行
+  function addTradeRow() {
+    const tbody = document.getElementById('tradeBody');
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td><input type="text" placeholder="mm/dd"></td>
+      <td><input type="text" placeholder="票名"></td>
+      <td><select><option value="">-</option><option>入场</option><option>加仓</option><option>减仓</option><option>清仓</option></select></td>
+      <td><input type="text" placeholder="金叉回踩..."></td>
+      <td><select><option value="">-</option><option>盈利</option><option>亏损</option><option>持仓中</option></select></td>
+      <td><input type="text" placeholder="±%"></td>
+    `;
+    tbody.appendChild(row);
+  }
+
+  // 情绪标签
+  function toggleEmotion(el) { el.classList.toggle('active'); }
+
+  // 星级评分
+  let currentStar = 0;
+  function setStar(n) {
+    currentStar = n;
+    document.querySelectorAll('.star').forEach((s, i) => {
+      s.classList.toggle('active', i < n);
+    });
+  }
+</script>
+</body>
+</html>
