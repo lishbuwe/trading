@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="我要发财">
+<link rel="apple-touch-icon" href="mao.PNG">
+<title>我要发财</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap');
+
+:root {
+  --bg: #0a0a0a;
+  --s1: #111111;
+  --s2: #181818;
+  --s3: #202020;
+  --border: #252525;
+  --border2: #2e2e2e;
+  --gold: #b8965a;
+  --gold-hi: #d4af72;
+  --gold-dim: rgba(184,150,90,0.12);
+  --red: #b84040;
+  --red-dim: rgba(184,64,64,0.1);
+  --green: #4a9960;
+  --green-dim: rgba(74,153,96,0.1);
+  --text: #ddd9d0;
+  --text-d: #7a7770;
+  --text-m: #3e3c38;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bot: env(safe-area-inset-bottom, 0px);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+html { height: 100%; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 300;
+  line-height: 1.85;
+  min-height: 100%;
+  padding-bottom: calc(60px + var(--safe-bot));
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.022;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ── 顶栏 ── */
+.topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 200;
+  background: rgba(10,10,10,0.94);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--border);
+  padding-top: var(--safe-top);
+}
+
+.topbar-inner {
+  display: flex;
+  align-items: center;
+  height: 50px;
+  padding: 0 1.2rem;
+}
+
+.topbar-logo {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.18em;
+  margin-right: auto;
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-d);
+  font-family: 'Noto Sans SC', sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  padding: 0 1rem;
+  height: 50px;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.25s;
+  white-space: nowrap;
+}
+
+.tab-btn::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 1rem; right: 1rem;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.tab-btn.active { color: var(--gold-hi); }
+.tab-btn.active::after { transform: scaleX(1); }
+
+/* ── 页面 ── */
+.spacer { height: calc(50px + var(--safe-top)); }
+.page { display: none; padding: 0 1rem; animation: fadeUp 0.28s ease; }
+.page.active { display: block; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.inner { max-width: 680px; margin: 0 auto; }
+
+.page-header { text-align: center; padding: 1.8rem 0 1.3rem; }
+.page-header h2 {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 1.15rem; font-weight: 700;
+  color: var(--gold-hi); letter-spacing: 0.2em;
+}
+.page-header p { margin-top: 0.35rem; font-size: 0.72rem; color: var(--text-m); letter-spacing: 0.08em; }
+
+.hdivider { height: 1px; background: linear-gradient(90deg,transparent,var(--border2),transparent); margin-bottom: 1.4rem; }
+
+/* ── 章节 ── */
+.chapter { margin-bottom: 1.6rem; }
+
+.ch-title {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 0.7rem; font-weight: 700;
+  letter-spacing: 0.22em; color: var(--gold);
+  margin-bottom: 0.65rem;
+  display: flex; align-items: center; gap: 0.65rem;
+}
+.ch-title::before { content:''; display:inline-block; width:12px; height:1px; background:var(--gold); opacity:0.4; }
+.ch-title::after  { content:''; flex:1; height:1px; background:var(--border); }
+
+/* ── 规则卡 ── */
+.rules { display:flex; flex-direction:column; gap:0.38rem; }
+
+.rule {
+  display:flex; gap:0.8rem;
+  padding:0.75rem 0.95rem;
+  background:var(--s1);
+  border:1px solid var(--border);
+  border-radius:6px;
+  font-size:0.83rem; line-height:1.72;
+  align-items:flex-start;
+  transition:border-color 0.2s;
+}
+.rule:hover { border-color:var(--border2); }
+.rule.iron    { border-left:2px solid var(--gold); }
+.rule.danger  { border-left:2px solid var(--red);   background:var(--red-dim); }
+.rule.safe    { border-left:2px solid var(--green);  background:var(--green-dim); }
+.rule.neutral { border-left:2px solid var(--border2); }
+
+.rn { font-size:0.66rem; color:var(--text-m); font-weight:500; min-width:16px; padding-top:0.12rem; flex-shrink:0; }
+.rc { flex:1; }
+.rc strong { color:var(--text); font-weight:500; }
+.rc small { font-size:0.74rem; color:var(--text-d); display:block; margin-top:0.18rem; }
+
+.tag {
+  display:inline-block; font-size:0.65rem;
+  padding:0.07rem 0.4rem; border-radius:3px;
+  margin-right:0.28rem; font-weight:500; letter-spacing:0.04em;
+  vertical-align:middle; position:relative; top:-1px;
+}
+.tag.red   { background:var(--red-dim);   color:var(--red);   border:1px solid rgba(184,64,64,0.2); }
+.tag.green { background:var(--green-dim); color:var(--green); border:1px solid rgba(74,153,96,0.2); }
+.tag.gold  { background:var(--gold-dim);  color:var(--gold);  border:1px solid rgba(184,150,90,0.2); }
+
+/* ── 卖出表 ── */
+.sell-table { background:var(--s1); border:1px solid var(--border); border-radius:6px; overflow:hidden; }
+
+.sell-row {
+  display:flex; align-items:flex-start; gap:1rem;
+  padding:0.65rem 0.95rem;
+  border-bottom:1px solid var(--border);
+  font-size:0.83rem;
+}
+.sell-row:last-child { border-bottom:none; }
+.sell-cond { font-size:0.72rem; color:var(--text-d); min-width:126px; flex-shrink:0; padding-top:0.08rem; }
+.sell-act { color:var(--text); }
+.sell-act.red  { color:var(--red); }
+.sell-act.gold { color:var(--gold); }
+
+.priority-note {
+  font-size:0.71rem; color:var(--text-d);
+  margin-top:0.5rem; padding:0.48rem 0.75rem;
+  background:var(--s1); border-radius:5px;
+  border-left:2px solid var(--text-m); line-height:1.8;
+}
+
+/* ══ 月记 ══ */
+.month-row { display:flex; align-items:center; gap:0.65rem; margin-bottom:0.9rem; }
+.month-row label { font-size:0.76rem; color:var(--text-d); white-space:nowrap; }
+
+input[type="month"] {
+  background:var(--s2); border:1px solid var(--border2);
+  color:var(--text); padding:0.3rem 0.6rem;
+  font-family:inherit; font-size:0.8rem;
+  border-radius:5px; outline:none; transition:border-color 0.2s;
+}
+input[type="month"]:focus { border-color:var(--gold); }
+
+.card {
+  background:var(--s1); border:1px solid var(--border);
+  border-radius:8px; padding:1.1rem;
+  margin-bottom:0.8rem; transition:border-color 0.2s;
+}
+.card:focus-within { border-color:var(--border2); }
+
+.card-title {
+  font-family:'Noto Serif SC',serif; font-size:0.8rem; font-weight:600;
+  color:var(--gold); letter-spacing:0.1em;
+  margin-bottom:0.8rem;
+  display:flex; align-items:center; gap:0.45rem;
+}
+.card-title::before { content:''; display:inline-block; width:2.5px; height:11px; background:var(--gold); border-radius:2px; flex-shrink:0; }
+
+.num-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:0.45rem; margin-bottom:0.45rem; }
+
+.num-cell {
+  background:var(--s2); border:1px solid var(--border);
+  border-radius:5px; padding:0.6rem 0.45rem;
+  text-align:center; transition:border-color 0.2s;
+}
+.num-cell:focus-within { border-color:var(--gold); }
+.num-cell label { display:block; font-size:0.62rem; color:var(--text-m); margin-bottom:0.18rem; letter-spacing:0.02em; }
+.num-cell input {
+  background:transparent; border:none;
+  color:var(--text); font-size:0.98rem; font-weight:500;
+  text-align:center; width:100%; outline:none; font-family:inherit;
+}
+.num-cell input::placeholder { color:var(--text-m); font-size:0.8rem; font-weight:300; }
+.num-cell.up   input { color:var(--green); }
+.num-cell.down input { color:var(--red); }
+
+/* 交易表 */
+.trade-wrap { overflow-x:auto; -webkit-overflow-scrolling:touch; }
+
+.trade-tbl { width:100%; border-collapse:collapse; font-size:0.78rem; min-width:460px; }
+.trade-tbl th {
+  color:var(--text-m); font-weight:400; font-size:0.66rem;
+  letter-spacing:0.03em; padding:0.28rem 0.4rem;
+  border-bottom:1px solid var(--border); text-align:left; white-space:nowrap;
+}
+.trade-tbl td { padding:0.46rem 0.32rem; border-bottom:1px solid var(--border); vertical-align:middle; }
+.trade-tbl tr:last-child td { border-bottom:none; }
+.trade-tbl td input,
+.trade-tbl td select {
+  background:transparent; border:none;
+  color:var(--text); font-family:inherit; font-size:0.78rem; width:100%; outline:none; padding:0;
+}
+.trade-tbl td select option { background:var(--s2); color:var(--text); }
+
+.del-btn { background:transparent; border:none; color:var(--text-m); font-size:0.9rem; cursor:pointer; padding:0 0.18rem; line-height:1; transition:color 0.2s; }
+.del-btn:hover { color:var(--red); }
+
+.add-row-btn {
+  background:transparent; border:1px dashed var(--border);
+  color:var(--text-m); font-family:inherit; font-size:0.72rem;
+  padding:0.4rem; width:100%; cursor:pointer;
+  border-radius:5px; margin-top:0.45rem;
+  transition:all 0.2s; letter-spacing:0.04em;
+}
+.add-row-btn:hover { border-color:var(--gold); color:var(--gold); }
+
+/* 复选框 */
+.check-list { display:flex; flex-direction:column; gap:0.38rem; }
+
+.check-item {
+  display:flex; align-items:center; gap:0.6rem;
+  padding:0.47rem 0.7rem;
+  background:var(--s2); border-radius:5px; border:1px solid var(--border);
+  font-size:0.8rem; cursor:pointer; transition:border-color 0.2s; user-select:none;
+}
+.check-item:hover { border-color:var(--border2); }
+
+.check-item input[type="checkbox"] {
+  appearance:none; -webkit-appearance:none;
+  width:14px; height:14px;
+  border:1.5px solid var(--border2); border-radius:3px;
+  cursor:pointer; position:relative; flex-shrink:0; transition:all 0.2s;
+}
+.check-item input[type="checkbox"]:checked { background:var(--gold); border-color:var(--gold); }
+.check-item input[type="checkbox"]:checked::after {
+  content:'✓'; position:absolute; color:#0a0a0a;
+  font-size:9px; font-weight:700; top:50%; left:50%;
+  transform:translate(-50%,-50%);
+}
+
+.star-row { display:flex; align-items:center; gap:0.65rem; margin-top:0.65rem; }
+.star-row label { font-size:0.74rem; color:var(--text-d); }
+.stars { display:flex; gap:0.18rem; }
+.star { font-size:0.98rem; cursor:pointer; color:var(--text-m); transition:color 0.15s; user-select:none; }
+.star.on { color:var(--gold); }
+
+/* 情绪 */
+.emo-wrap { display:flex; gap:0.34rem; flex-wrap:wrap; margin:0.55rem 0; }
+.emo-tag {
+  background:var(--s2); border:1px solid var(--border); border-radius:20px;
+  padding:0.2rem 0.6rem; font-size:0.72rem; cursor:pointer;
+  transition:all 0.2s; color:var(--text-d); user-select:none;
+}
+.emo-tag.on { background:var(--gold-dim); border-color:var(--gold); color:var(--gold-hi); }
+
+textarea {
+  background:var(--s2); border:1px solid var(--border); border-radius:5px;
+  color:var(--text); font-family:inherit; font-size:0.82rem; line-height:1.85;
+  padding:0.62rem 0.82rem; width:100%; resize:vertical; outline:none; min-height:82px;
+  transition:border-color 0.2s;
+}
+textarea:focus { border-color:var(--gold); }
+textarea::placeholder { color:var(--text-m); }
+
+.hint { font-size:0.68rem; color:var(--text-m); margin-top:0.32rem; font-style:italic; }
+
+/* 按钮 */
+.action-area { display:flex; flex-direction:column; gap:0.48rem; margin-top:0.4rem; }
+
+.btn-primary {
+  background:linear-gradient(135deg,#9a7a3f,var(--gold),#9a7a3f);
+  background-size:200% 100%;
+  border:none; border-radius:6px;
+  color:#0a0a0a; font-family:'Noto Serif SC',serif;
+  font-size:0.84rem; font-weight:700; letter-spacing:0.1em;
+  padding:0.72rem; cursor:pointer; width:100%;
+  transition:background-position 0.4s;
+}
+.btn-primary:hover { background-position:right; }
+
+.btn-row { display:flex; gap:0.48rem; }
+
+.btn-sec {
+  background:var(--s2); border:1px solid var(--border2);
+  border-radius:6px; color:var(--text-d); font-family:inherit;
+  font-size:0.78rem; letter-spacing:0.05em; padding:0.62rem;
+  cursor:pointer; flex:1; transition:all 0.2s;
+}
+.btn-sec:hover { border-color:var(--gold); color:var(--gold); }
+
+/* toast */
+.toast {
+  position:fixed;
+  bottom:calc(72px + var(--safe-bot));
+  left:50%; transform:translateX(-50%);
+  background:var(--s3); border:1px solid var(--border2);
+  color:var(--text); font-size:0.78rem;
+  padding:0.5rem 1.1rem; border-radius:20px;
+  white-space:nowrap; opacity:0; transition:opacity 0.25s;
+  z-index:500; pointer-events:none; letter-spacing:0.04em;
+}
+.toast.show { opacity:1; }
+
+#importInput { display:none; }
+
+::-webkit-scrollbar { width:3px; height:3px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border2); border-radius:3px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <span class="topbar-logo">我要发财</span>
+    <button class="tab-btn active" onclick="switchTab('rules',this)">纪律</button>
+    <button class="tab-btn" onclick="switchTab('journal',this)">月记</button>
+  </div>
+</div>
+<div class="spacer"></div>
+
+<!-- ════ 纪律页 ════ -->
+<div id="page-rules" class="page active">
+<div class="inner">
+
+  <div class="page-header">
+    <h2>完整闭环交易纪律</h2>
+    <p>封存版 — 每笔买卖照此执行，不议</p>
+  </div>
+  <div class="hdivider"></div>
+
+  <div class="chapter">
+    <div class="ch-title">一　底层铁律</div>
+    <div class="rules">
+      <div class="rule iron"><span class="rn">01</span><div class="rc">只玩右侧趋势，不左侧阴跌抄底</div></div>
+      <div class="rule iron"><span class="rn">02</span><div class="rc">持仓永久 ≤ 3 只，想买新票必须先清旧票，绝不开超市</div></div>
+      <div class="rule iron"><span class="rn">03</span><div class="rc">选票必须<strong>逻辑面 + 技术面</strong>双达标，缺一不买</div></div>
+      <div class="rule iron"><span class="rn">04</span><div class="rc">不意淫目标价、不硬扛、不格局，按规则执行</div></div>
+      <div class="rule iron"><span class="rn">05</span><div class="rc">单只仓位上限 <strong>65%</strong>，全程分仓，不梭哈</div></div>
+    </div>
+  </div>
+
+  <div class="chapter">
+    <div class="ch-title">二　买入纪律</div>
+    <div class="rules">
+      <div class="rule neutral">
+        <span class="rn">前提</span>
+        <div class="rc"><strong>热门板块 + 基本面过硬</strong>，缺一不考虑</div>
+      </div>
+      <div class="rule safe">
+        <span class="rn">① 最优</span>
+        <div class="rc">
+          <span class="tag green">上升趋势回踩企稳</span><br>
+          回踩过程缩量跌不动 · 企稳当天收盘站上5日线带下影线<br>
+          次日开盘维持 + 量能小幅回升，再入场
+        </div>
+      </div>
+      <div class="rule safe">
+        <span class="rn">② 次优</span>
+        <div class="rc">
+          <span class="tag green">趋势启动金叉共振</span><br>
+          5日线上穿10日线 · KDJ低位金叉 · MACD低位/零轴良性金叉 · 布林带中轨向上通道开口<br>
+          <small>共振越多越可信，仓位相对保守</small>
+        </div>
+      </div>
+      <div class="rule neutral">
+        <span class="rn">激进</span>
+        <div class="rc">
+          <span class="tag gold">允许</span>主线抱团强势票，分时顺势跟瞬间拉升<br>
+          <small>前提：日线站稳5/10线 + 有板块联动，不做孤立杂毛</small>
+        </div>
+      </div>
+      <div class="rule danger">
+        <span class="rn">禁</span>
+        <div class="rc">
+          <span class="tag red">绝对不买</span><br>
+          · 暴涨严重脱离均线，不场外新开仓<br>
+          · 收盘已破10日线的个股，再便宜不碰<br>
+          · 冷门杂毛、无板块共鸣孤票<br>
+          · 满3只持仓时，不清旧绝不加新
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chapter">
+    <div class="ch-title">三　卖出纪律</div>
+    <div class="sell-table">
+      <div class="sell-row">
+        <span class="sell-cond">单日收盘破5日线</span>
+        <span class="sell-act gold">观察，不动</span>
+      </div>
+      <div class="sell-row">
+        <span class="sell-cond">连收两日破5日线</span>
+        <span class="sell-act">第二天尾盘减仓<br><small style="color:var(--text-d);font-size:0.72rem">中途收盘重新站回5日线 → 解除破5状态</small></span>
+      </div>
+      <div class="sell-row">
+        <span class="sell-cond">单日收盘有效破10日线</span>
+        <span class="sell-act red">当天尾盘清仓，无视盈亏</span>
+      </div>
+      <div class="sell-row">
+        <span class="sell-cond">盘中跌停式暴跌</span>
+        <span class="sell-act red">立即减半仓，收盘后查明原因再决定</span>
+      </div>
+    </div>
+    <div class="priority-note">
+      优先级：跌停暴跌 ＞ 破10日线清仓 ＞ 连两日破5减仓<br>
+      每天收盘前必查一次持仓均线状态
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ════ 月记页 ════ -->
+<div id="page-journal" class="page">
+<div class="inner">
+
+  <div class="page-header">
+    <h2>复盘月记</h2>
+    <p>每月一份，照实填写</p>
+  </div>
+  <div class="hdivider"></div>
+
+  <div class="month-row">
+    <label>复盘月份</label>
+    <input type="month" id="monthPicker" onchange="loadJournal()">
+  </div>
+
+  <div class="card">
+    <div class="card-title">收益概况</div>
+    <div class="num-grid">
+      <div class="num-cell up"><label>本月盈亏（元）</label><input type="text" id="f-pnl" placeholder="+0" oninput="debounceSave()"></div>
+      <div class="num-cell"><label>盈亏比（%）</label><input type="text" id="f-pnlpct" placeholder="0%" oninput="debounceSave()"></div>
+      <div class="num-cell"><label>操作次数</label><input type="text" id="f-ops" placeholder="0" oninput="debounceSave()"></div>
+    </div>
+    <div class="num-grid">
+      <div class="num-cell up"><label>盈利笔数</label><input type="text" id="f-wins" placeholder="0" oninput="debounceSave()"></div>
+      <div class="num-cell down"><label>亏损笔数</label><input type="text" id="f-losses" placeholder="0" oninput="debounceSave()"></div>
+      <div class="num-cell"><label>胜率</label><input type="text" id="f-wr" placeholder="0%" oninput="debounceSave()"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">本月交易记录</div>
+    <div class="trade-wrap">
+      <table class="trade-tbl">
+        <thead><tr><th>日期</th><th>股票</th><th>方向</th><th>入场理由</th><th>结果</th><th>盈亏%</th><th></th></tr></thead>
+        <tbody id="tradeBody"></tbody>
+      </table>
+    </div>
+    <button class="add-row-btn" onclick="addTradeRow()">＋ 添加记录</button>
+  </div>
+
+  <div class="card">
+    <div class="card-title">规则执行检查</div>
+    <div class="check-list" id="checkList">
+      <label class="check-item"><input type="checkbox" onchange="debounceSave()"> 入场前确认板块热度 + 基本面</label>
+      <label class="check-item"><input type="checkbox" onchange="debounceSave()"> 买点符合最优或次优标准</label>
+      <label class="check-item"><input type="checkbox" onchange="debounceSave()"> 突破/企稳有量能配合</label>
+      <label class="check-item"><input type="checkbox" onchange="debounceSave()"> 连两日破5已尾盘减仓</label>
+      <label class="check-item"><input type="checkbox" onchange="debounceSave()"> 单日破10已当天尾盘清仓</label>
+      <label class="check-item"><input type="checkbox" onchange="debounceSave()"> 单只仓位未超65%</label>
+      <label class="check-item"><input type="checkbox" onchange="debounceSave()"> 持仓未超3只</label>
+      <label class="check-item"><input type="checkbox" onchange="debounceSave()"> 本月无冲动追热点乱买</label>
+    </div>
+    <div class="star-row">
+      <label>执行评分</label>
+      <div class="stars" id="stars">
+        <span class="star" onclick="setStar(1)">★</span>
+        <span class="star" onclick="setStar(2)">★</span>
+        <span class="star" onclick="setStar(3)">★</span>
+        <span class="star" onclick="setStar(4)">★</span>
+        <span class="star" onclick="setStar(5)">★</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">本月最佳操作</div>
+    <textarea id="f-best" placeholder="哪笔最符合规则？入场理由、执行过程、结果..." oninput="debounceSave()"></textarea>
+  </div>
+
+  <div class="card">
+    <div class="card-title">踩坑记录</div>
+    <textarea id="f-worst" placeholder="哪笔违反了规则？当时的情绪？下次如何避免..." oninput="debounceSave()"></textarea>
+  </div>
+
+  <div class="card">
+    <div class="card-title">情绪管理</div>
+    <p style="font-size:0.72rem;color:var(--text-d)">本月主要情绪（可多选）</p>
+    <div class="emo-wrap" id="emoWrap">
+      <span class="emo-tag" onclick="toggleEmo(this)">😤 手痒冲动</span>
+      <span class="emo-tag" onclick="toggleEmo(this)">😰 恐高追涨</span>
+      <span class="emo-tag" onclick="toggleEmo(this)">😓 舍不得割</span>
+      <span class="emo-tag" onclick="toggleEmo(this)">😱 踏空懊悔</span>
+      <span class="emo-tag" onclick="toggleEmo(this)">😌 执行顺畅</span>
+      <span class="emo-tag" onclick="toggleEmo(this)">🎯 纪律良好</span>
+      <span class="emo-tag" onclick="toggleEmo(this)">😤 卖飞懊悔</span>
+      <span class="emo-tag" onclick="toggleEmo(this)">💪 心态稳健</span>
+    </div>
+    <textarea id="f-emo" placeholder="情绪对操作的影响..." style="min-height:70px" oninput="debounceSave()"></textarea>
+  </div>
+
+  <div class="card">
+    <div class="card-title">月末持仓状态</div>
+    <textarea id="f-hold" placeholder="各票仓位、技术面状态、是否符合持仓逻辑..." oninput="debounceSave()"></textarea>
+    <p class="hint">参考：晶振 30% — 均线多头，等突破前高 | 储能 15% — 站稳5日线，观察中</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">下月重点计划</div>
+    <textarea id="f-next" placeholder="重点关注板块/票、需改进的执行细节、仓位调整计划..." oninput="debounceSave()"></textarea>
+  </div>
+
+  <div class="card">
+    <div class="card-title">本月一句话总结</div>
+    <textarea id="f-sum" placeholder="用一句话概括这个月..." style="min-height:58px" oninput="debounceSave()"></textarea>
+  </div>
+
+  <div class="action-area">
+    <button class="btn-primary" onclick="exportMD()">导出本月复盘（Markdown）</button>
+    <div class="btn-row">
+      <button class="btn-sec" onclick="exportJSON()">📦 导出存档</button>
+      <button class="btn-sec" onclick="document.getElementById('importInput').click()">📂 导入存档</button>
+    </div>
+    <input type="file" id="importInput" accept=".json" onchange="importJSON(this)">
+  </div>
+
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function switchTab(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+(function init() {
+  const now = new Date();
+  document.getElementById('monthPicker').value =
+    `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  addTradeRow();
+  loadJournal();
+})();
+
+function tradeRowHTML() {
+  return `<tr>
+    <td><input type="text" placeholder="mm/dd" oninput="debounceSave()"></td>
+    <td><input type="text" placeholder="票名" oninput="debounceSave()"></td>
+    <td><select onchange="debounceSave()"><option value="">-</option><option>入场</option><option>加仓</option><option>减仓</option><option>清仓</option></select></td>
+    <td><input type="text" placeholder="回踩/金叉/追板..." oninput="debounceSave()"></td>
+    <td><select onchange="debounceSave()"><option value="">-</option><option>盈利</option><option>亏损</option><option>持仓中</option></select></td>
+    <td><input type="text" placeholder="±%" oninput="debounceSave()"></td>
+    <td><button class="del-btn" onclick="delRow(this)">×</button></td>
+  </tr>`;
+}
+
+function addTradeRow() {
+  document.getElementById('tradeBody').insertAdjacentHTML('beforeend', tradeRowHTML());
+}
+
+function delRow(btn) {
+  if (document.querySelectorAll('#tradeBody tr').length <= 1) return;
+  btn.closest('tr').remove();
+  debounceSave();
+}
+
+function toggleEmo(el) { el.classList.toggle('on'); debounceSave(); }
+
+let starVal = 0;
+function setStar(n) {
+  starVal = n;
+  document.querySelectorAll('.star').forEach((s, i) => s.classList.toggle('on', i < n));
+  debounceSave();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function getKey() { return 'journal_' + document.getElementById('monthPicker').value; }
+
+function collectData() {
+  const trades = [];
+  document.querySelectorAll('#tradeBody tr').forEach(tr => {
+    const c = tr.querySelectorAll('input,select');
+    trades.push({ date:c[0].value, stock:c[1].value, dir:c[2].value, reason:c[3].value, result:c[4].value, pnl:c[5].value });
+  });
+  const checks = [...document.querySelectorAll('#checkList input[type="checkbox"]')].map(c => c.checked);
+  const emotions = [...document.querySelectorAll('.emo-tag.on')].map(e => e.textContent.trim());
+  return {
+    pnl: document.getElementById('f-pnl').value,
+    pnlpct: document.getElementById('f-pnlpct').value,
+    ops: document.getElementById('f-ops').value,
+    wins: document.getElementById('f-wins').value,
+    losses: document.getElementById('f-losses').value,
+    wr: document.getElementById('f-wr').value,
+    trades, checks, stars: starVal, emotions,
+    best: document.getElementById('f-best').value,
+    worst: document.getElementById('f-worst').value,
+    emo: document.getElementById('f-emo').value,
+    hold: document.getElementById('f-hold').value,
+    next: document.getElementById('f-next').value,
+    sum: document.getElementById('f-sum').value
+  };
+}
+
+function saveJournal() {
+  try { localStorage.setItem(getKey(), JSON.stringify(collectData())); } catch(e) {}
+}
+
+let saveTimer;
+function debounceSave() { clearTimeout(saveTimer); saveTimer = setTimeout(saveJournal, 600); }
+
+function resetForm() {
+  ['f-pnl','f-pnlpct','f-ops','f-wins','f-losses','f-wr','f-best','f-worst','f-emo','f-hold','f-next','f-sum']
+    .forEach(id => document.getElementById(id).value = '');
+  document.getElementById('tradeBody').innerHTML = '';
+  document.querySelectorAll('#checkList input[type="checkbox"]').forEach(c => c.checked = false);
+  document.querySelectorAll('.emo-tag').forEach(e => e.classList.remove('on'));
+  starVal = 0;
+  document.querySelectorAll('.star').forEach(s => s.classList.remove('on'));
+}
+
+function loadJournal() {
+  resetForm();
+  const raw = localStorage.getItem(getKey());
+  if (!raw) { addTradeRow(); return; }
+  const d = JSON.parse(raw);
+  ['pnl','pnlpct','ops','wins','losses','wr','best','worst','emo','hold','next','sum']
+    .forEach(k => { const el = document.getElementById('f-'+k); if (el) el.value = d[k] || ''; });
+  (d.trades||[]).forEach(t => {
+    addTradeRow();
+    const tr = document.querySelector('#tradeBody tr:last-child');
+    const c = tr.querySelectorAll('input,select');
+    c[0].value=t.date||''; c[1].value=t.stock||''; c[2].value=t.dir||'';
+    c[3].value=t.reason||''; c[4].value=t.result||''; c[5].value=t.pnl||'';
+  });
+  if (!(d.trades||[]).length) addTradeRow();
+  (d.checks||[]).forEach((v,i) => { const c = document.querySelectorAll('#checkList input[type="checkbox"]')[i]; if(c) c.checked=v; });
+  if (d.stars) setStar(d.stars);
+  (d.emotions||[]).forEach(em => {
+    document.querySelectorAll('.emo-tag').forEach(e => { if(e.textContent.trim()===em) e.classList.add('on'); });
+  });
+}
+
+function exportMD() {
+  const d = collectData();
+  const month = document.getElementById('monthPicker').value;
+  const labels = ['入场前确认板块热度+基本面','买点符合最优或次优标准','突破/企稳有量能配合',
+    '连两日破5已尾盘减仓','单日破10已当天尾盘清仓','单只仓位未超65%','持仓未超3只','本月无冲动追热点乱买'];
+  let md = `# ${month} 复盘月记\n\n`;
+  md += `## 收益概况\n\n| 本月盈亏 | 盈亏比 | 操作次数 | 盈利笔 | 亏损笔 | 胜率 |\n|---|---|---|---|---|---|\n`;
+  md += `| ${d.pnl} | ${d.pnlpct} | ${d.ops} | ${d.wins} | ${d.losses} | ${d.wr} |\n\n`;
+  const rows = d.trades.filter(t=>t.stock).map(t=>`| ${t.date} | ${t.stock} | ${t.dir} | ${t.reason} | ${t.result} | ${t.pnl} |`).join('\n');
+  if (rows) md += `## 交易记录\n\n| 日期 | 股票 | 方向 | 入场理由 | 结果 | 盈亏% |\n|---|---|---|---|---|---|\n${rows}\n\n`;
+  md += `## 规则执行（评分：${'★'.repeat(d.stars)}${'☆'.repeat(5-d.stars)}）\n\n`;
+  md += labels.map((l,i)=>`- [${d.checks[i]?'x':' '}] ${l}`).join('\n') + '\n\n';
+  if (d.best)  md += `## 本月最佳操作\n\n${d.best}\n\n`;
+  if (d.worst) md += `## 踩坑记录\n\n${d.worst}\n\n`;
+  if (d.emotions.length||d.emo) {
+    md += `## 情绪管理\n\n`;
+    if (d.emotions.length) md += `**本月情绪：** ${d.emotions.join('、')}\n\n`;
+    if (d.emo) md += `${d.emo}\n\n`;
+  }
+  if (d.hold) md += `## 月末持仓状态\n\n${d.hold}\n\n`;
+  if (d.next) md += `## 下月重点计划\n\n${d.next}\n\n`;
+  if (d.sum)  md += `## 本月一句话总结\n\n> ${d.sum}\n`;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([md],{type:'text/markdown;charset=utf-8'}));
+  a.download = `复盘_${month}.md`;
+  a.click();
+  showToast('已导出 ' + month + ' 复盘');
+}
+
+function exportJSON() {
+  const all = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k.startsWith('journal_')) try { all[k] = JSON.parse(localStorage.getItem(k)); } catch(e) {}
+  }
+  const out = { version:'1.0', exported: new Date().toISOString().slice(0,10), data: all };
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(out,null,2)],{type:'application/json'}));
+  a.download = `交易系统存档_${out.exported}.json`;
+  a.click();
+  showToast('存档已导出');
+}
+
+function importJSON(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const obj = JSON.parse(e.target.result);
+      const data = obj.data || obj;
+      let count = 0;
+      Object.keys(data).forEach(k => {
+        if (k.startsWith('journal_')) { localStorage.setItem(k, JSON.stringify(data[k])); count++; }
+      });
+      loadJournal();
+      showToast(`已导入 ${count} 条月记`);
+    } catch { showToast('导入失败，请检查文件格式'); }
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+</script>
+</body>
+</html>
