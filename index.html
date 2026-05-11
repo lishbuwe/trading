@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="我要发财">
+<link rel="apple-touch-icon" href="mao.PNG">
+<title>我要发财</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap');
+:root{
+  --bg:#0a0a0a;--s1:#111;--s2:#181818;--s3:#202020;
+  --border:#252525;--border2:#2e2e2e;
+  --gold:#b8965a;--gold-hi:#d4af72;--gold-dim:rgba(184,150,90,.12);
+  --red:#b84040;--red-dim:rgba(184,64,64,.1);
+  --green:#4a9960;--green-dim:rgba(74,153,96,.1);
+  --amber:#9e7c2a;--amber-dim:rgba(158,124,42,.1);
+  --text:#ddd9d0;--text-d:#7a7770;--text-m:#3e3c38;
+  --safe-top:env(safe-area-inset-top,0px);--safe-bot:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+html{height:100%}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans SC',sans-serif;font-weight:300;line-height:1.85;min-height:100%;padding-bottom:calc(60px + var(--safe-bot))}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");opacity:.022;pointer-events:none;z-index:9999}
+
+/* topbar */
+.topbar{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(10,10,10,.94);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid var(--border);padding-top:var(--safe-top)}
+.topbar-inner{display:flex;align-items:center;height:50px;padding:0 1rem}
+.topbar-logo{font-family:'Noto Serif SC',serif;font-size:.74rem;font-weight:700;color:var(--gold);letter-spacing:.15em;margin-right:auto;white-space:nowrap}
+.tab-btn{background:transparent;border:none;color:var(--text-d);font-family:'Noto Sans SC',sans-serif;font-size:.78rem;letter-spacing:.05em;padding:0 .8rem;height:50px;cursor:pointer;position:relative;transition:color .25s;white-space:nowrap;flex-shrink:0}
+.tab-btn::after{content:'';position:absolute;bottom:0;left:.8rem;right:.8rem;height:1.5px;background:linear-gradient(90deg,transparent,var(--gold),transparent);transform:scaleX(0);transition:transform .3s ease}
+.tab-btn.active{color:var(--gold-hi)}.tab-btn.active::after{transform:scaleX(1)}
+
+/* pages */
+.spacer{height:calc(50px + var(--safe-top))}
+.page{display:none;padding:0 1rem;animation:fadeUp .28s ease}.page.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.inner{max-width:680px;margin:0 auto}
+.page-header{text-align:center;padding:1.8rem 0 1.3rem}
+.page-header h2{font-family:'Noto Serif SC',serif;font-size:1.15rem;font-weight:700;color:var(--gold-hi);letter-spacing:.2em}
+.page-header p{margin-top:.35rem;font-size:.72rem;color:var(--text-m);letter-spacing:.08em}
+.hdivider{height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent);margin-bottom:1.4rem}
+
+/* chapter */
+.chapter{margin-bottom:1.6rem}
+.ch-title{font-family:'Noto Serif SC',serif;font-size:.7rem;font-weight:700;letter-spacing:.22em;color:var(--gold);margin-bottom:.65rem;display:flex;align-items:center;gap:.65rem}
+.ch-title::before{content:'';display:inline-block;width:12px;height:1px;background:var(--gold);opacity:.4}
+.ch-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* rules */
+.rules{display:flex;flex-direction:column;gap:.38rem}
+.rule{display:flex;gap:.8rem;padding:.75rem .95rem;background:var(--s1);border:1px solid var(--border);border-radius:6px;font-size:.83rem;line-height:1.72;align-items:flex-start;transition:border-color .2s}
+.rule:hover{border-color:var(--border2)}
+.rule.iron{border-left:2px solid var(--gold)}
+.rule.danger{border-left:2px solid var(--red);background:var(--red-dim)}
+.rule.safe{border-left:2px solid var(--green);background:var(--green-dim)}
+.rule.warn{border-left:2px solid var(--amber);background:var(--amber-dim)}
+.rule.neutral{border-left:2px solid var(--border2)}
+.rn{font-size:.66rem;color:var(--text-m);font-weight:500;min-width:20px;padding-top:.12rem;flex-shrink:0;white-space:nowrap}
+.rc{flex:1}.rc strong{color:var(--text);font-weight:500}
+.sub{margin-top:.42rem;list-style:none;display:flex;flex-direction:column;gap:.25rem}
+.sub li{font-size:.8rem;color:var(--text-d);padding-left:.9rem;position:relative;line-height:1.65}
+.sub li::before{content:'·';position:absolute;left:0;color:var(--text-m)}
+.sub li strong{color:var(--text-d);font-weight:500}
+.tag{display:inline-block;font-size:.65rem;padding:.07rem .4rem;border-radius:3px;margin-right:.28rem;font-weight:500;letter-spacing:.04em;vertical-align:middle;position:relative;top:-1px}
+.tag.red{background:var(--red-dim);color:var(--red);border:1px solid rgba(184,64,64,.2)}
+.tag.green{background:var(--green-dim);color:var(--green);border:1px solid rgba(74,153,96,.2)}
+.tag.gold{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(184,150,90,.2)}
+.sub-section{margin-top:.5rem;font-size:.8rem}
+.sub-section-title{font-size:.75rem;color:var(--text);font-weight:500;margin-bottom:.3rem}
+.mini-table{width:100%;border-collapse:collapse;background:var(--s2);border-radius:5px;overflow:hidden;border:1px solid var(--border);margin-top:.3rem}
+.mini-table th{font-size:.66rem;color:var(--text-m);font-weight:400;padding:.28rem .55rem;border-bottom:1px solid var(--border);text-align:left}
+.mini-table td{font-size:.76rem;padding:.38rem .55rem;border-bottom:1px solid var(--border);color:var(--text-d);vertical-align:top;line-height:1.55}
+.mini-table tr:last-child td{border-bottom:none}
+.mini-table td.act-buy{color:var(--green);font-weight:500;white-space:nowrap}
+.mini-table td.act-pass{color:var(--red);font-weight:500;white-space:nowrap}
+.mini-table td.act-wait{color:var(--gold);font-weight:500;white-space:nowrap}
+
+/* sell table */
+.sell-table{background:var(--s1);border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.sell-row{display:flex;align-items:flex-start;gap:1rem;padding:.65rem .95rem;border-bottom:1px solid var(--border);font-size:.83rem}
+.sell-row:last-child{border-bottom:none}
+.sell-cond{font-size:.72rem;color:var(--text-d);min-width:130px;flex-shrink:0;padding-top:.08rem}
+.sell-act{color:var(--text)}.sell-act.red{color:var(--red)}.sell-act.gold{color:var(--gold)}
+.note-box{font-size:.71rem;color:var(--text-d);margin-top:.5rem;padding:.48rem .75rem;background:var(--s1);border-radius:5px;border-left:2px solid var(--text-m);line-height:1.8}
+
+/* card */
+.card{background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:1.1rem;margin-bottom:.8rem;transition:border-color .2s}
+.card:focus-within{border-color:var(--border2)}
+.card-title{font-family:'Noto Serif SC',serif;font-size:.8rem;font-weight:600;color:var(--gold);letter-spacing:.1em;margin-bottom:.8rem;display:flex;align-items:center;gap:.45rem}
+.card-title::before{content:'';display:inline-block;width:2.5px;height:11px;background:var(--gold);border-radius:2px;flex-shrink:0}
+
+/* inputs */
+input[type="month"],input[type="date"],input[type="number"],input[type="text"]{background:var(--s2);border:1px solid var(--border2);color:var(--text);padding:.3rem .6rem;font-family:inherit;font-size:.8rem;border-radius:5px;outline:none;transition:border-color .2s}
+input[type="month"]:focus,input[type="date"]:focus,input[type="number"]:focus,input[type="text"]:focus{border-color:var(--gold)}
+textarea{background:var(--s2);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:inherit;font-size:.82rem;line-height:1.85;padding:.62rem .82rem;width:100%;resize:vertical;outline:none;min-height:82px;transition:border-color .2s}
+textarea:focus{border-color:var(--gold)}textarea::placeholder{color:var(--text-m)}
+.hint{font-size:.68rem;color:var(--text-m);margin-top:.32rem;font-style:italic}
+
+/* date row */
+.date-row{display:flex;align-items:center;gap:.65rem;margin-bottom:.9rem}
+.date-row label{font-size:.76rem;color:var(--text-d);white-space:nowrap}
+
+/* ── 仓位计算器 ── */
+.calc-total-row{display:flex;align-items:center;gap:.7rem;margin-bottom:.9rem}
+.calc-total-row label{font-size:.8rem;color:var(--text-d);white-space:nowrap}
+.calc-total-row input{width:140px;font-size:.9rem}
+.calc-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.calc-tbl{width:100%;border-collapse:collapse;min-width:380px}
+.calc-tbl th{font-size:.66rem;color:var(--text-m);font-weight:400;padding:.28rem .4rem;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap;letter-spacing:.03em}
+.calc-tbl td{padding:.46rem .35rem;border-bottom:1px solid var(--border);vertical-align:middle}
+.calc-tbl tr:last-child td{border-bottom:none}
+.calc-tbl td input{background:transparent;border:none;color:var(--text);font-family:inherit;font-size:.82rem;outline:none;padding:0;width:100%}
+.calc-tbl td input[type="number"]{-moz-appearance:textfield}
+.calc-tbl td input::-webkit-outer-spin-button,.calc-tbl td input::-webkit-inner-spin-button{-webkit-appearance:none}
+.calc-amt{font-size:.82rem;color:var(--text-d);white-space:nowrap}
+.calc-pct{font-size:.82rem;font-weight:500;white-space:nowrap}
+.calc-pct.hi{color:var(--red)}
+.calc-pct.mid{color:var(--gold)}
+.calc-pct.lo{color:var(--green)}
+.calc-summary{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.7rem;padding:.55rem .7rem;background:var(--s2);border-radius:5px;font-size:.76rem;color:var(--text-d)}
+.calc-summary span{white-space:nowrap}
+.calc-summary .hi{color:var(--red)}.calc-summary .ok{color:var(--green)}.calc-summary strong{color:var(--text)}
+
+/* num grid */
+.num-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.45rem;margin-bottom:.45rem}
+.num-cell{background:var(--s2);border:1px solid var(--border);border-radius:5px;padding:.6rem .45rem;text-align:center;transition:border-color .2s}
+.num-cell:focus-within{border-color:var(--gold)}
+.num-cell label{display:block;font-size:.62rem;color:var(--text-m);margin-bottom:.18rem}
+.num-cell input{background:transparent;border:none;color:var(--text);font-size:.98rem;font-weight:500;text-align:center;width:100%;outline:none;font-family:inherit}
+.num-cell input::placeholder{color:var(--text-m);font-size:.8rem;font-weight:300}
+.num-cell.up input{color:var(--green)}.num-cell.down input{color:var(--red)}
+
+/* trade table */
+.trade-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.trade-tbl{width:100%;border-collapse:collapse;font-size:.78rem;min-width:460px}
+.trade-tbl th{color:var(--text-m);font-weight:400;font-size:.66rem;letter-spacing:.03em;padding:.28rem .4rem;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap}
+.trade-tbl td{padding:.46rem .32rem;border-bottom:1px solid var(--border);vertical-align:middle}
+.trade-tbl tr:last-child td{border-bottom:none}
+.trade-tbl td input,.trade-tbl td select{background:transparent;border:none;color:var(--text);font-family:inherit;font-size:.78rem;width:100%;outline:none;padding:0}
+.trade-tbl td select option{background:var(--s2);color:var(--text)}
+
+/* checklist */
+.check-list{display:flex;flex-direction:column;gap:.38rem}
+.check-item{display:flex;align-items:center;gap:.6rem;padding:.47rem .7rem;background:var(--s2);border-radius:5px;border:1px solid var(--border);font-size:.8rem;cursor:pointer;transition:border-color .2s;user-select:none}
+.check-item:hover{border-color:var(--border2)}
+.check-item input[type="checkbox"]{appearance:none;-webkit-appearance:none;width:14px;height:14px;border:1.5px solid var(--border2);border-radius:3px;cursor:pointer;position:relative;flex-shrink:0;transition:all .2s}
+.check-item input[type="checkbox"]:checked{background:var(--gold);border-color:var(--gold)}
+.check-item input[type="checkbox"]:checked::after{content:'✓';position:absolute;color:#0a0a0a;font-size:9px;font-weight:700;top:50%;left:50%;transform:translate(-50%,-50%)}
+.star-row{display:flex;align-items:center;gap:.65rem;margin-top:.65rem}
+.star-row label{font-size:.74rem;color:var(--text-d)}
+.stars{display:flex;gap:.18rem}
+.star{font-size:.98rem;cursor:pointer;color:var(--text-m);transition:color .15s;user-select:none}
+.star.on{color:var(--gold)}
+.emo-wrap{display:flex;gap:.34rem;flex-wrap:wrap;margin:.55rem 0}
+.emo-tag{background:var(--s2);border:1px solid var(--border);border-radius:20px;padding:.2rem .6rem;font-size:.72rem;cursor:pointer;transition:all .2s;color:var(--text-d);user-select:none}
+.emo-tag.on{background:var(--gold-dim);border-color:var(--gold);color:var(--gold-hi)}
+
+/* buttons */
+.action-area{display:flex;flex-direction:column;gap:.48rem;margin-top:.4rem}
+.btn-primary{background:linear-gradient(135deg,#9a7a3f,var(--gold),#9a7a3f);background-size:200% 100%;border:none;border-radius:6px;color:#0a0a0a;font-family:'Noto Serif SC',serif;font-size:.84rem;font-weight:700;letter-spacing:.1em;padding:.72rem;cursor:pointer;width:100%;transition:background-position .4s}
+.btn-primary:hover{background-position:right}
+.btn-row{display:flex;gap:.48rem}
+.btn-sec{background:var(--s2);border:1px solid var(--border2);border-radius:6px;color:var(--text-d);font-family:inherit;font-size:.78rem;letter-spacing:.05em;padding:.62rem;cursor:pointer;flex:1;transition:all .2s}
+.btn-sec:hover{border-color:var(--gold);color:var(--gold)}
+.del-btn{background:transparent;border:none;color:var(--text-m);font-size:.9rem;cursor:pointer;padding:0 .18rem;line-height:1;transition:color .2s}
+.del-btn:hover{color:var(--red)}
+.add-row-btn{background:transparent;border:1px dashed var(--border);color:var(--text-m);font-family:inherit;font-size:.72rem;padding:.4rem;width:100%;cursor:pointer;border-radius:5px;margin-top:.45rem;transition:all .2s;letter-spacing:.04em}
+.add-row-btn:hover{border-color:var(--gold);color:var(--gold)}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:400;display:flex;align-items:center;justify-content:center;padding:1.5rem;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal.show{opacity:1;pointer-events:all}
+.modal-box{background:var(--s2);border:1px solid var(--border2);border-radius:10px;padding:1.5rem;width:100%;max-width:300px}
+.modal-title{font-family:'Noto Serif SC',serif;font-size:.9rem;color:var(--gold-hi);letter-spacing:.12em;margin-bottom:1.2rem;text-align:center}
+.radio-group{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.2rem}
+.radio-item{display:flex;align-items:flex-start;gap:.7rem;padding:.65rem .8rem;background:var(--s1);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:.82rem;transition:border-color .2s;user-select:none}
+.radio-item.selected{border-color:var(--gold);background:var(--gold-dim)}
+.radio-dot{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--border2);flex-shrink:0;margin-top:.15rem;position:relative;transition:all .2s}
+.radio-item.selected .radio-dot{border-color:var(--gold);background:var(--gold)}
+.radio-item.selected .radio-dot::after{content:'';position:absolute;width:5px;height:5px;background:#0a0a0a;border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%)}
+.radio-label{flex:1}
+.radio-label span{display:block;font-size:.82rem;color:var(--text);margin-bottom:.4rem}
+.modal select,.modal-pick{background:var(--s2);border:1px solid var(--border2);color:var(--text);padding:.3rem .6rem;font-family:inherit;font-size:.8rem;border-radius:5px;outline:none;width:100%;transition:border-color .2s}
+.modal select:focus,.modal-pick:focus{border-color:var(--gold)}
+.modal select option{background:var(--s2)}
+.modal-field{margin-top:.5rem}
+.modal-field label{display:block;font-size:.72rem;color:var(--text-d);margin-bottom:.3rem}
+.modal-btns{display:flex;gap:.5rem;margin-top:1.2rem}
+.modal-cancel{background:transparent;border:1px solid var(--border2);border-radius:5px;color:var(--text-d);font-family:inherit;font-size:.8rem;padding:.6rem;cursor:pointer;flex:1;transition:all .2s}
+.modal-cancel:hover{border-color:var(--text-d);color:var(--text)}
+.modal-confirm{background:var(--gold);border:none;border-radius:5px;color:#0a0a0a;font-family:'Noto Serif SC',serif;font-size:.8rem;font-weight:700;padding:.6rem;cursor:pointer;flex:1.5;transition:opacity .2s}
+.modal-confirm:hover{opacity:.85}
+
+.toast{position:fixed;bottom:calc(72px + var(--safe-bot));left:50%;transform:translateX(-50%);background:var(--s3);border:1px solid var(--border2);color:var(--text);font-size:.78rem;padding:.5rem 1.1rem;border-radius:20px;white-space:nowrap;opacity:0;transition:opacity .25s;z-index:500;pointer-events:none;letter-spacing:.04em}
+.toast.show{opacity:1}
+#importInput{display:none}
+::-webkit-scrollbar{width:3px;height:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="topbar-inner">
+  <span class="topbar-logo">我要发财</span>
+  <button class="tab-btn active" onclick="switchTab('rules',this)">纪律</button>
+  <button class="tab-btn" onclick="switchTab('daily',this)">日记</button>
+  <button class="tab-btn" onclick="switchTab('journal',this)">月记</button>
+</div></div>
+<div class="spacer"></div>
+
+<!-- ══════════════ 纪律页 ══════════════ -->
+<div id="page-rules" class="page active"><div class="inner">
+<div class="page-header"><h2>完整闭环交易纪律</h2><p>定稿版 — 每笔买卖照此执行，不议</p></div>
+<div class="hdivider"></div>
+
+<div class="chapter">
+  <div class="ch-title">一　底层铁律</div>
+  <div class="rules">
+    <div class="rule iron"><span class="rn">01</span><div class="rc"><strong>只做右侧：</strong>绝不在下跌趋势中左侧抄底，不埋伏，不猜底</div></div>
+    <div class="rule iron"><span class="rn">02</span><div class="rc"><strong>持仓集中：</strong>同时持仓不超过3只。想买新票，必须先清掉一只旧票，永不开超市</div></div>
+    <div class="rule iron"><span class="rn">03</span><div class="rc"><strong>双维验证：</strong>入场必须逻辑面＋技术面双达标，缺一不买</div></div>
+    <div class="rule iron"><span class="rn">04</span><div class="rc"><strong>机械执行：</strong>不意淫目标价，不扛单，不格局。盘中只执行计划，不产生新想法</div></div>
+    <div class="rule iron"><span class="rn">05</span><div class="rc"><strong>分仓硬顶：</strong>单只个股总仓位上限 <strong>65%</strong>。全程分仓，永不梭哈单票</div></div>
+    <div class="rule iron"><span class="rn">06</span><div class="rc"><strong>力求干净：</strong>优先选择上方无均线压制、图形干净、空间开阔的个股</div></div>
+  </div>
+</div>
+
+<div class="chapter">
+  <div class="ch-title">二　大盘环境过滤器</div>
+  <div class="rules">
+    <div class="rule warn"><span class="rn">触发</span>
+      <div class="rc">以下任一状态触发时，所有信号<strong>只观察，不执行：</strong>
+        <ul class="sub">
+          <li>沪深300收盘价低于60日均线</li>
+          <li>全市场成交额连续3天低于警戒阈值（初始值8000亿，每半年校准，取过去60个交易日日均成交额的70%，校准时记录日期备查）</li>
+          <li>两市跌停家数（剔除ST）连续2天超过50家</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="chapter">
+  <div class="ch-title">三　选股过滤器</div>
+  <div class="rules">
+    <div class="rule neutral"><span class="rn">必须</span>
+      <div class="rc">以下条件同时满足，缺一不进观察池：
+        <ul class="sub">
+          <li><strong>热门主线：</strong>属于当前市场最强资金抱团板块，有板块联动效应</li>
+          <li><strong>逻辑过硬：</strong>有可追踪的产业事件、订单或业绩支撑，或属于市场公认核心主线；拒绝无实质的蹭热点个股</li>
+          <li><strong>周线干净：</strong>周线不处于下行趋势。允许底部整理均线纠缠，但不允许均线明确向下排列时进场</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="chapter">
+  <div class="ch-title">四　买入纪律</div>
+  <div class="rules">
+    <div class="rule neutral"><span class="rn">观察①</span>
+      <div class="rc"><span class="tag gold">均线多头成形</span><strong>筛选标的，不直接入场</strong>
+        <ul class="sub">
+          <li>5日线上穿10日线，均线多头成形；周线不下行</li>
+          <li>MACD、KDJ、布林带作辅助参考，全部反向才构成否决</li>
+          <li><strong>触发后：</strong>列入重点观察池，等待买点①出现再建仓</li>
+        </ul>
+      </div>
+    </div>
+    <div class="rule neutral"><span class="rn">观察②</span>
+      <div class="rc"><span class="tag gold">关键位放量突破</span><strong>筛选标的，不直接入场</strong>
+        <ul class="sub">
+          <li>股价放量突破前高、长期压制均线或平台颈线，成交量超过前3日均量50%以上，无量突破不纳入观察</li>
+          <li><strong>触发后：</strong>列入重点观察池，等待买点①出现再建仓</li>
+        </ul>
+      </div>
+    </div>
+    <div class="rule safe"><span class="rn">买点①</span>
+      <div class="rc">
+        <span class="tag green">唯一入场点</span><span class="tag green">龙头中段回踩</span>
+        <div class="sub-section">
+          <div class="sub-section-title" style="margin-top:.4rem">前提条件（缺一不买）</div>
+          <ul class="sub">
+            <li>5日线方向向上，10日线方向向上</li>
+            <li>周线不处于死叉下行状态</li>
+            <li>股价处于明确上升趋势，当日盘中出现真实向下试探，尾盘收回站稳5日线上方</li>
+          </ul>
+          <div class="sub-section-title" style="margin-top:.55rem">核心判断原则</div>
+          <div style="font-size:.78rem;color:var(--text-d);line-height:1.7;margin-top:.2rem">主力没有出货意愿的回调都是买点。判断标准不是量能大小，而是<strong style="color:var(--text)">尾盘是否回收、下影线是否真实</strong>。每次回踩独立判断，不计回踩次数，只看质量。</div>
+          <div class="sub-section-title" style="margin-top:.55rem">量能与K线分类</div>
+          <table class="mini-table">
+            <thead><tr><th style="width:55%">形态</th><th>操作</th><th>仓位</th></tr></thead>
+            <tbody>
+              <tr><td>缩量（低于前5日均量80%），任何K线，尾盘不走弱</td><td class="act-buy">买入</td><td class="act-buy">标准 50%</td></tr>
+              <tr><td>放量带长下影＋尾盘回收（含绿柱）</td><td class="act-buy">可买</td><td class="act-buy">保守 30%</td></tr>
+              <tr><td>连板开板回调，成交额低于开板当日50%，带下影＋尾盘回收</td><td class="act-buy">可买</td><td class="act-buy">保守 30%</td></tr>
+              <tr><td>连续缩量涨停导致量能基准失效</td><td class="act-wait">放弃量能判断</td><td class="act-buy">保守 30%</td></tr>
+              <tr><td>放量无下影 / 十字星 / 尾盘明显走弱 / 弱于板块 / 需说服自己</td><td class="act-pass">不买</td><td class="act-pass">等下次</td></tr>
+            </tbody>
+          </table>
+          <div class="sub-section-title" style="margin-top:.55rem">暧昧信号处理</div>
+          <table class="mini-table">
+            <tbody>
+              <tr><td>信号不清晰</td><td class="act-wait" style="white-space:nowrap">不买，多观察一天</td></tr>
+              <tr><td>次日缩量修复站稳5日线尾盘不走弱</td><td class="act-buy">标准 50%</td></tr>
+              <tr><td>次日小幅放量带下影尾盘回收</td><td class="act-buy">保守 30%</td></tr>
+              <tr><td>次日放量拉升远离5日线</td><td class="act-pass">不追，视为观察②</td></tr>
+            </tbody>
+          </table>
+          <div class="sub-section-title" style="margin-top:.55rem">仓位与周线校准</div>
+          <ul class="sub">
+            <li><strong>周线强势（5周线向上未超买）：</strong>按上述标准执行</li>
+            <li><strong>周线偏弱但未死叉：</strong>仓位降一档（50%→30%，30%→观察）</li>
+            <li><strong>周线死叉下行：</strong>放弃建仓</li>
+          </ul>
+          <div class="sub-section-title" style="margin-top:.55rem">执行</div>
+          <div style="font-size:.78rem;color:var(--text-d)">尾盘确认后买入，只看收盘，不做盘中决策</div>
+          <div class="sub-section-title" style="margin-top:.55rem">加仓规则</div>
+          <ul class="sub">
+            <li>出现符合买点①标准的回踩，尾盘加至满仓</li>
+            <li>两次建仓间隔至少3个交易日</li>
+            <li>若首次以30%建仓，下次回踩合格后可直接加至满仓</li>
+          </ul>
+          <div class="sub-section-title" style="margin-top:.55rem;color:var(--red)">禁止加仓（任一触发则放弃本次加仓）</div>
+          <ul class="sub">
+            <li>本次回踩放量明显大于上次</li>
+            <li>板块已出现退潮迹象</li>
+            <li>板块龙头已破5日线或10日线</li>
+            <li>回踩跌破前突破平台</li>
+            <li>回踩时走势明显弱于板块</li>
+            <li>股价已远离10日线</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="rule danger"><span class="rn">禁</span>
+      <div class="rc"><span class="tag red">绝对不买</span>
+        <ul class="sub">
+          <li>短期暴涨，严重远离5日均线的票</li>
+          <li>收盘价有效跌破10日线的票</li>
+          <li>冷门杂毛、无板块效应的孤立个股</li>
+          <li>满仓3只时，不清旧不加新</li>
+          <li>周线均线明确向下排列的票</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="chapter">
+  <div class="ch-title">五　卖出纪律</div>
+  <div class="sell-table">
+    <div class="sell-row"><span class="sell-cond">单日收盘破5日线</span><span class="sell-act gold">观察，不动</span></div>
+    <div class="sell-row"><span class="sell-cond">连收两日破5日线</span><span class="sell-act">第二天尾盘减仓50%<br><small style="font-size:.72rem;color:var(--text-d)">中途收盘重新站回5日线 → 解除破5状态</small></span></div>
+    <div class="sell-row"><span class="sell-cond">单日收盘有效破10日线</span><span class="sell-act red">当天尾盘清仓，无视盈亏</span></div>
+    <div class="sell-row"><span class="sell-cond">盘中跌幅超过8%</span><span class="sell-act red">立即减半仓，收盘后结合原因决定剩余仓位<br><small style="font-size:.72rem;color:var(--text-d)">例外：若当日沪深300跌幅超过2%，本条暂停，维持原仓位观察</small></span></div>
+  </div>
+  <div class="rule safe" style="margin-top:.5rem">
+    <span class="rn">加回</span>
+    <div class="rc"><strong>减仓后加回规则</strong>
+      <div style="font-size:.78rem;color:var(--text-d);margin-top:.3rem;line-height:1.7">连续两日破5减仓后，若股价未触及10日线便企稳，同时满足以下<strong style="color:var(--text)">全部条件</strong>，可在10日线附近加回减仓量的50%：</div>
+      <ul class="sub" style="margin-top:.3rem">
+        <li>缩量企稳，带下影线</li>
+        <li>尾盘不走弱</li>
+        <li>板块整体未退潮</li>
+        <li>龙头未破线</li>
+      </ul>
+      <div style="font-size:.78rem;color:var(--text-d);margin-top:.35rem">加回后若重新站稳5日线触发标准买点①条件，可继续加至满仓</div>
+    </div>
+  </div>
+  <div class="note-box" style="margin-top:.5rem">
+    优先级：盘中暴跌 ＞ 破10日线清仓 ＞ 连两日破5减仓<br>
+    每日收盘前，必须检查一遍持仓股的5日/10日线状态
+  </div>
+</div>
+
+<div class="chapter">
+  <div class="ch-title">六　账户级极端风控</div>
+  <div class="rules">
+    <div class="rule iron"><span class="rn">01</span><div class="rc"><strong>强制冷静期：</strong>账户连续4次止损后，全账户强制空仓1周，期间只复盘、不开仓</div></div>
+    <div class="rule iron"><span class="rn">02</span><div class="rc"><strong>总回撤熔断：</strong>账户从最高点回撤达到15%时，单只仓位上限自动从65%降为35%，直到净值收回失地再解除</div></div>
+    <div class="rule iron"><span class="rn">03</span><div class="rc"><strong>标的拉黑：</strong>任何个股若在1个月内出现2次「触发买点→随后破10日线清仓」，该标的直接拉黑3个月，不再关注</div></div>
+  </div>
+</div>
+</div></div>
+
+<!-- ══════════════ 日记页 ══════════════ -->
+<div id="page-daily" class="page"><div class="inner">
+<div class="page-header"><h2>每日记录</h2><p>仓位计算 · 盘后复盘</p></div>
+<div class="hdivider"></div>
+
+<!-- 仓位计算器 -->
+<div class="card">
+  <div class="card-title">仓位计算器</div>
+  <div class="calc-total-row">
+    <label>总资金（元）</label>
+    <input type="number" id="totalCapital" placeholder="100000" oninput="calcPositions()">
+  </div>
+  <div class="calc-wrap">
+    <table class="calc-tbl">
+      <thead><tr><th style="width:22%">股票</th><th style="width:22%">股价</th><th style="width:22%">持股数</th><th style="width:20%">金额</th><th style="width:10%">仓位</th><th style="width:4%"></th></tr></thead>
+      <tbody id="calcBody"></tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addCalcRow()">＋ 添加股票</button>
+  <div class="calc-summary" id="calcSummary"></div>
+</div>
+
+<!-- 每日复盘 -->
+<div class="date-row">
+  <label>复盘日期</label>
+  <input type="date" id="datePicker" onchange="loadDaily()">
+</div>
+
+<div class="card">
+  <div class="card-title">大盘状态</div>
+  <textarea id="d-market" placeholder="沪深300今日表现，成交额，板块轮动情况..." style="min-height:70px" oninput="debounceDaily()"></textarea>
+</div>
+<div class="card">
+  <div class="card-title">持仓观察</div>
+  <textarea id="d-hold" placeholder="各持仓股今日走势，均线状态，有无异动..." oninput="debounceDaily()"></textarea>
+</div>
+<div class="card">
+  <div class="card-title">今日操作</div>
+  <textarea id="d-action" placeholder="今日是否有买卖操作，理由，执行情况..." style="min-height:70px" oninput="debounceDaily()"></textarea>
+</div>
+<div class="card">
+  <div class="card-title">明日计划</div>
+  <textarea id="d-plan" placeholder="明日关注点，预设操作条件，需要确认的信号..." oninput="debounceDaily()"></textarea>
+</div>
+<div class="card">
+  <div class="card-title">今日心得</div>
+  <textarea id="d-note" placeholder="情绪状态，思考，规则执行情况，值得记录的细节..." oninput="debounceDaily()"></textarea>
+</div>
+
+<div class="action-area">
+  <button class="btn-primary" onclick="openDailyExportModal()">导出日记记录</button>
+</div>
+</div></div>
+
+<!-- ══════════════ 月记页 ══════════════ -->
+<div id="page-journal" class="page"><div class="inner">
+<div class="page-header"><h2>复盘月记</h2><p>每月一份，照实填写</p></div>
+<div class="hdivider"></div>
+
+<div class="date-row">
+  <label>复盘月份</label>
+  <input type="month" id="monthPicker" onchange="loadJournal()">
+</div>
+
+<div class="card">
+  <div class="card-title">收益概况</div>
+  <div class="num-grid">
+    <div class="num-cell up"><label>本月盈亏（元）</label><input type="text" id="f-pnl" placeholder="+0" oninput="debounceSave()"></div>
+    <div class="num-cell"><label>盈亏比（%）</label><input type="text" id="f-pnlpct" placeholder="0%" oninput="debounceSave()"></div>
+    <div class="num-cell"><label>操作次数</label><input type="text" id="f-ops" placeholder="0" oninput="debounceSave()"></div>
+  </div>
+  <div class="num-grid">
+    <div class="num-cell up"><label>盈利笔数</label><input type="text" id="f-wins" placeholder="0" oninput="debounceSave()"></div>
+    <div class="num-cell down"><label>亏损笔数</label><input type="text" id="f-losses" placeholder="0" oninput="debounceSave()"></div>
+    <div class="num-cell"><label>胜率</label><input type="text" id="f-wr" placeholder="0%" oninput="debounceSave()"></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">本月交易记录</div>
+  <div class="trade-wrap">
+    <table class="trade-tbl">
+      <thead><tr><th>日期</th><th>股票</th><th>方向</th><th>入场理由</th><th>结果</th><th>盈亏%</th><th></th></tr></thead>
+      <tbody id="tradeBody"></tbody>
+    </table>
+  </div>
+  <button class="add-row-btn" onclick="addTradeRow()">＋ 添加记录</button>
+</div>
+
+<div class="card">
+  <div class="card-title">规则执行检查</div>
+  <div class="check-list" id="checkList">
+    <label class="check-item"><input type="checkbox" onchange="debounceSave()"> 入场前确认板块热度 + 基本面</label>
+    <label class="check-item"><input type="checkbox" onchange="debounceSave()"> 买点符合唯一入场点标准</label>
+    <label class="check-item"><input type="checkbox" onchange="debounceSave()"> 确认大盘环境过滤器未触发</label>
+    <label class="check-item"><input type="checkbox" onchange="debounceSave()"> 量能与K线判断执行到位</label>
+    <label class="check-item"><input type="checkbox" onchange="debounceSave()"> 连两日破5已尾盘减仓</label>
+    <label class="check-item"><input type="checkbox" onchange="debounceSave()"> 单日破10已当天尾盘清仓</label>
+    <label class="check-item"><input type="checkbox" onchange="debounceSave()"> 单只仓位未超65%</label>
+    <label class="check-item"><input type="checkbox" onchange="debounceSave()"> 持仓未超3只</label>
+    <label class="check-item"><input type="checkbox" onchange="debounceSave()"> 本月无冲动追热点乱买</label>
+  </div>
+  <div class="star-row">
+    <label>执行评分</label>
+    <div class="stars" id="stars">
+      <span class="star" onclick="setStar(1)">★</span><span class="star" onclick="setStar(2)">★</span>
+      <span class="star" onclick="setStar(3)">★</span><span class="star" onclick="setStar(4)">★</span>
+      <span class="star" onclick="setStar(5)">★</span>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-title">本月总结</div>
+  <textarea id="f-sum" placeholder="本月整体回顾..." style="min-height:120px" oninput="debounceSave()"></textarea>
+</div>
+<div class="card">
+  <div class="card-title">本月最佳操作</div>
+  <textarea id="f-best" placeholder="哪笔最符合规则？入场理由、执行过程、结果..." oninput="debounceSave()"></textarea>
+</div>
+<div class="card">
+  <div class="card-title">踩坑记录</div>
+  <textarea id="f-worst" placeholder="哪笔违反了规则？当时的情绪？下次如何避免..." oninput="debounceSave()"></textarea>
+</div>
+
+<div class="card">
+  <div class="card-title">情绪管理</div>
+  <p style="font-size:.72rem;color:var(--text-d)">本月主要情绪（可多选）</p>
+  <div class="emo-wrap" id="emoWrap">
+    <span class="emo-tag" onclick="toggleEmo(this)">😤 手痒冲动</span>
+    <span class="emo-tag" onclick="toggleEmo(this)">😰 恐高追涨</span>
+    <span class="emo-tag" onclick="toggleEmo(this)">😓 舍不得割</span>
+    <span class="emo-tag" onclick="toggleEmo(this)">😱 踏空懊悔</span>
+    <span class="emo-tag" onclick="toggleEmo(this)">😌 执行顺畅</span>
+    <span class="emo-tag" onclick="toggleEmo(this)">🎯 纪律良好</span>
+    <span class="emo-tag" onclick="toggleEmo(this)">😤 卖飞懊悔</span>
+    <span class="emo-tag" onclick="toggleEmo(this)">💪 心态稳健</span>
+  </div>
+  <textarea id="f-emo" placeholder="情绪对操作的影响..." style="min-height:70px" oninput="debounceSave()"></textarea>
+</div>
+<div class="card">
+  <div class="card-title">月末持仓状态</div>
+  <textarea id="f-hold" placeholder="各票仓位、技术面状态、是否符合持仓逻辑..." oninput="debounceSave()"></textarea>
+</div>
+<div class="card">
+  <div class="card-title">下月重点计划</div>
+  <textarea id="f-next" placeholder="重点关注板块/票、需改进的执行细节、仓位调整计划..." oninput="debounceSave()"></textarea>
+</div>
+
+<div class="action-area">
+  <button class="btn-primary" onclick="openExportModal()">导出月记</button>
+  <div class="btn-row">
+    <button class="btn-sec" onclick="exportJSON()">📦 导出全部存档</button>
+    <button class="btn-sec" onclick="document.getElementById('importInput').click()">📂 导入存档</button>
+  </div>
+  <input type="file" id="importInput" accept=".json" onchange="importJSON(this)">
+</div>
+</div></div>
+
+<!-- ══ 月记导出弹窗 ══ -->
+<div class="modal" id="exportModal" onclick="bgClose(event,'exportModal')">
+  <div class="modal-box">
+    <div class="modal-title">导出月记</div>
+    <div class="radio-group">
+      <div class="radio-item selected" id="ri-month" onclick="selectExportType('month')">
+        <div class="radio-dot"></div>
+        <div class="radio-label">
+          <span>单月</span>
+          <input type="month" class="modal-pick" id="exportMonthPicker">
+        </div>
+      </div>
+      <div class="radio-item" id="ri-year" onclick="selectExportType('year')">
+        <div class="radio-dot"></div>
+        <div class="radio-label">
+          <span>全年</span>
+          <select id="exportYearPicker"></select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal('exportModal')">取消</button>
+      <button class="modal-confirm" onclick="doExportMD()">导出 Markdown</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 日记导出弹窗 ══ -->
+<div class="modal" id="dailyExportModal" onclick="bgClose(event,'dailyExportModal')">
+  <div class="modal-box">
+    <div class="modal-title">导出日记记录</div>
+    <div class="modal-field">
+      <label>开始日期</label>
+      <input type="date" class="modal-pick" id="dailyExportFrom">
+    </div>
+    <div class="modal-field" style="margin-top:.6rem">
+      <label>结束日期</label>
+      <input type="date" class="modal-pick" id="dailyExportTo">
+    </div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeModal('dailyExportModal')">取消</button>
+      <button class="modal-confirm" onclick="doExportDaily()">导出 Markdown</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══ tab ══
+function switchTab(name, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ══ init ══
+(function init() {
+  const now = new Date();
+  const m = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const d = now.toISOString().slice(0,10);
+  document.getElementById('monthPicker').value = m;
+  document.getElementById('datePicker').value = d;
+  document.getElementById('exportMonthPicker').value = m;
+  document.getElementById('dailyExportFrom').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-01`;
+  document.getElementById('dailyExportTo').value = d;
+  currentMonth = m;
+  currentDate = d;
+  populateYearPicker();
+  addTradeRow();
+  restoreFromStorage(m);
+  loadCalcData();
+  loadDailyFromStorage(d);
+})();
+
+// ══════════════ 仓位计算器 ══════════════
+function calcRowHTML() {
+  return `<tr class="calc-row">
+    <td><input type="text" placeholder="股票名" oninput="calcPositions()"></td>
+    <td><input type="number" placeholder="0.00" step="0.01" oninput="calcPositions()"></td>
+    <td><input type="number" placeholder="0" step="1" oninput="calcPositions()"></td>
+    <td><span class="calc-amt">-</span></td>
+    <td><span class="calc-pct">-</span></td>
+    <td><button class="del-btn" onclick="delCalcRow(this)">×</button></td>
+  </tr>`;
+}
+
+function addCalcRow() {
+  document.getElementById('calcBody').insertAdjacentHTML('beforeend', calcRowHTML());
+  calcPositions();
+}
+
+function delCalcRow(btn) {
+  if (document.querySelectorAll('.calc-row').length <= 1) return;
+  btn.closest('tr').remove();
+  calcPositions();
+}
+
+function calcPositions() {
+  const total = parseFloat(document.getElementById('totalCapital').value) || 0;
+  let used = 0;
+  document.querySelectorAll('.calc-row').forEach(row => {
+    const price = parseFloat(row.querySelectorAll('input')[1].value) || 0;
+    const shares = parseFloat(row.querySelectorAll('input')[2].value) || 0;
+    const amt = price * shares;
+    const pct = total > 0 ? (amt / total * 100) : 0;
+    const amtEl = row.querySelector('.calc-amt');
+    const pctEl = row.querySelector('.calc-pct');
+    amtEl.textContent = amt > 0 ? '¥' + Math.round(amt).toLocaleString() : '-';
+    if (pct > 0) {
+      pctEl.textContent = pct.toFixed(1) + '%';
+      pctEl.className = 'calc-pct ' + (pct > 60 ? 'hi' : pct > 35 ? 'mid' : 'lo');
+    } else {
+      pctEl.textContent = '-';
+      pctEl.className = 'calc-pct';
+    }
+    used += amt;
+  });
+  const rem = total - used;
+  const sumEl = document.getElementById('calcSummary');
+  if (total > 0) {
+    const usedPct = (used/total*100).toFixed(1);
+    const remPct = (rem/total*100).toFixed(1);
+    sumEl.innerHTML = `<span>已用 <strong>¥${Math.round(used).toLocaleString()}</strong> (${usedPct}%)</span><span style="color:var(--border2)">|</span><span class="${rem>=0?'ok':'hi'}">剩余 <strong>¥${Math.round(rem).toLocaleString()}</strong> (${remPct}%)</span>`;
+  } else { sumEl.innerHTML = ''; }
+  saveCalcData();
+}
+
+function saveCalcData() {
+  const rows = [];
+  document.querySelectorAll('.calc-row').forEach(row => {
+    const inputs = row.querySelectorAll('input');
+    rows.push({name:inputs[0].value, price:inputs[1].value, shares:inputs[2].value});
+  });
+  try { localStorage.setItem('calc_positions', JSON.stringify({total: document.getElementById('totalCapital').value, rows})); } catch(e){}
+}
+
+function loadCalcData() {
+  const raw = localStorage.getItem('calc_positions');
+  if (!raw) { addCalcRow(); return; }
+  const d = JSON.parse(raw);
+  document.getElementById('totalCapital').value = d.total || '';
+  document.getElementById('calcBody').innerHTML = '';
+  (d.rows || []).forEach(r => {
+    document.getElementById('calcBody').insertAdjacentHTML('beforeend', calcRowHTML());
+    const row = document.querySelector('.calc-row:last-child');
+    const inputs = row.querySelectorAll('input');
+    inputs[0].value = r.name || '';
+    inputs[1].value = r.price || '';
+    inputs[2].value = r.shares || '';
+  });
+  if (!d.rows || !d.rows.length) addCalcRow();
+  calcPositions();
+}
+
+// ══════════════ 每日复盘 ══════════════
+let currentDate = '';
+
+function loadDaily() {
+  const newDate = document.getElementById('datePicker').value;
+  if (currentDate && currentDate !== newDate) saveDailyNow();
+  currentDate = newDate;
+  resetDailyForm();
+  loadDailyFromStorage(newDate);
+}
+
+function resetDailyForm() {
+  ['d-market','d-hold','d-action','d-plan','d-note'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.value = '';
+  });
+}
+
+function loadDailyFromStorage(date) {
+  const raw = localStorage.getItem('daily_' + date);
+  if (!raw) return;
+  const d = JSON.parse(raw);
+  const s = (id, val) => { const el=document.getElementById(id); if(el) el.value=val||''; };
+  s('d-market', d.market); s('d-hold', d.hold);
+  s('d-action', d.action); s('d-plan', d.plan); s('d-note', d.note);
+}
+
+function saveDailyNow() {
+  if (!currentDate) return;
+  const g = id => { const el=document.getElementById(id); return el?el.value:''; };
+  const data = {market:g('d-market'),hold:g('d-hold'),action:g('d-action'),plan:g('d-plan'),note:g('d-note')};
+  try { localStorage.setItem('daily_'+currentDate, JSON.stringify(data)); } catch(e){}
+}
+
+let dailyTimer;
+function debounceDaily() { clearTimeout(dailyTimer); dailyTimer = setTimeout(saveDailyNow, 500); }
+
+// ══════════════ 月记 ══════════════
+let currentMonth = '';
+let starVal = 0;
+let exportType = 'month';
+
+function addTradeRow() {
+  document.getElementById('tradeBody').insertAdjacentHTML('beforeend', `<tr>
+    <td><input type="text" placeholder="mm/dd" oninput="debounceSave()"></td>
+    <td><input type="text" placeholder="票名" oninput="debounceSave()"></td>
+    <td><select onchange="debounceSave()"><option value="">-</option><option>入场</option><option>加仓</option><option>减仓</option><option>清仓</option></select></td>
+    <td><input type="text" placeholder="回踩/金叉..." oninput="debounceSave()"></td>
+    <td><select onchange="debounceSave()"><option value="">-</option><option>盈利</option><option>亏损</option><option>持仓中</option></select></td>
+    <td><input type="text" placeholder="±%" oninput="debounceSave()"></td>
+    <td><button class="del-btn" onclick="this.closest('tr').remove();debounceSave()">×</button></td>
+  </tr>`);
+}
+
+function toggleEmo(el) { el.classList.toggle('on'); debounceSave(); }
+
+function setStar(n) {
+  starVal = n;
+  document.querySelectorAll('.star').forEach((s,i) => s.classList.toggle('on', i < n));
+  debounceSave();
+}
+
+function collectData() {
+  const trades = [];
+  document.querySelectorAll('#tradeBody tr').forEach(tr => {
+    const c = tr.querySelectorAll('input,select');
+    trades.push({date:c[0].value,stock:c[1].value,dir:c[2].value,reason:c[3].value,result:c[4].value,pnl:c[5].value});
+  });
+  const checks = [...document.querySelectorAll('#checkList input[type="checkbox"]')].map(c=>c.checked);
+  const emotions = [...document.querySelectorAll('.emo-tag.on')].map(e=>e.textContent.trim());
+  const g = id => { const el=document.getElementById(id); return el?el.value:''; };
+  return {pnl:g('f-pnl'),pnlpct:g('f-pnlpct'),ops:g('f-ops'),wins:g('f-wins'),losses:g('f-losses'),wr:g('f-wr'),
+    trades,checks,stars:starVal,emotions,sum:g('f-sum'),best:g('f-best'),worst:g('f-worst'),emo:g('f-emo'),hold:g('f-hold'),next:g('f-next')};
+}
+
+function saveJournal() {
+  if (!currentMonth) return;
+  try { localStorage.setItem('journal_'+currentMonth, JSON.stringify(collectData())); } catch(e){}
+}
+let saveTimer;
+function debounceSave() { clearTimeout(saveTimer); saveTimer = setTimeout(saveJournal, 500); }
+
+function resetForm() {
+  ['f-pnl','f-pnlpct','f-ops','f-wins','f-losses','f-wr','f-sum','f-best','f-worst','f-emo','f-hold','f-next']
+    .forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('tradeBody').innerHTML='';
+  document.querySelectorAll('#checkList input[type="checkbox"]').forEach(c=>c.checked=false);
+  document.querySelectorAll('.emo-tag').forEach(e=>e.classList.remove('on'));
+  starVal=0; document.querySelectorAll('.star').forEach(s=>s.classList.remove('on'));
+}
+
+function restoreFromStorage(month) {
+  const raw = localStorage.getItem('journal_'+month);
+  if (!raw) { addTradeRow(); return; }
+  const d = JSON.parse(raw);
+  const s = (id,val) => { const el=document.getElementById(id); if(el) el.value=val||''; };
+  ['pnl','pnlpct','ops','wins','losses','wr','sum','best','worst','emo','hold','next']
+    .forEach(k => s('f-'+k, d[k]));
+  (d.trades||[]).forEach(t => {
+    addTradeRow();
+    const tr=document.querySelector('#tradeBody tr:last-child'), c=tr.querySelectorAll('input,select');
+    c[0].value=t.date||''; c[1].value=t.stock||''; c[2].value=t.dir||'';
+    c[3].value=t.reason||''; c[4].value=t.result||''; c[5].value=t.pnl||'';
+  });
+  if (!(d.trades||[]).length) addTradeRow();
+  (d.checks||[]).forEach((v,i)=>{ const c=document.querySelectorAll('#checkList input[type="checkbox"]')[i]; if(c) c.checked=v; });
+  if (d.stars) setStar(d.stars);
+  (d.emotions||[]).forEach(em=>{ document.querySelectorAll('.emo-tag').forEach(e=>{ if(e.textContent.trim()===em) e.classList.add('on'); }); });
+}
+
+function loadJournal() {
+  const newMonth = document.getElementById('monthPicker').value;
+  if (currentMonth && currentMonth !== newMonth) saveJournal();
+  currentMonth = newMonth;
+  resetForm();
+  restoreFromStorage(newMonth);
+}
+
+// ══ 弹窗 ══
+function showToast(msg) {
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2200);
+}
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+function bgClose(e, id) { if(e.target===document.getElementById(id)) closeModal(id); }
+
+// 月记导出弹窗
+function openExportModal() {
+  saveJournal();
+  document.getElementById('exportMonthPicker').value = currentMonth;
+  populateYearPicker();
+  document.getElementById('exportModal').classList.add('show');
+}
+function selectExportType(type) {
+  exportType = type;
+  document.getElementById('ri-month').classList.toggle('selected', type==='month');
+  document.getElementById('ri-year').classList.toggle('selected', type==='year');
+}
+function populateYearPicker() {
+  const sel=document.getElementById('exportYearPicker'), cy=new Date().getFullYear();
+  const years=new Set([cy,cy-1]);
+  for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith('journal_')){const y=parseInt(k.slice(8,12));if(!isNaN(y))years.add(y);}}
+  sel.innerHTML='';
+  [...years].sort((a,b)=>b-a).forEach(y=>{const o=document.createElement('option');o.value=y;o.textContent=y+' 年';sel.appendChild(o);});
+}
+function doExportMD() {
+  closeModal('exportModal');
+  if (exportType==='month') {
+    const month=document.getElementById('exportMonthPicker').value;
+    if (!month){showToast('请选择月份');return;}
+    const raw=localStorage.getItem('journal_'+month);
+    downloadMD(buildMonthMD(month, raw?JSON.parse(raw):{}), `复盘_${month}.md`);
+    showToast('已导出 '+month+' 复盘');
+  } else {
+    const year=document.getElementById('exportYearPicker').value;
+    let md=`# ${year} 年度复盘汇总\n\n`, count=0;
+    for(let m=1;m<=12;m++){const key=`journal_${year}-${String(m).padStart(2,'0')}`;const raw=localStorage.getItem(key);if(raw){md+=buildMonthMD(`${year}-${String(m).padStart(2,'0')}`,JSON.parse(raw))+'\n---\n\n';count++;}}
+    if(!count){showToast(year+' 年暂无记录');return;}
+    downloadMD(md, `复盘_${year}年.md`);
+    showToast(`已导出 ${year} 年（${count} 个月）`);
+  }
+}
+function buildMonthMD(month, d) {
+  const labels=['入场前确认板块热度+基本面','买点符合唯一入场点标准','确认大盘环境过滤器未触发','量能与K线判断执行到位','连两日破5已尾盘减仓','单日破10已当天尾盘清仓','单只仓位未超65%','持仓未超3只','本月无冲动追热点乱买'];
+  const stars=d.stars||0;
+  let md=`# ${month} 复盘月记\n\n`;
+  md+=`## 收益概况\n\n| 本月盈亏 | 盈亏比 | 操作次数 | 盈利笔 | 亏损笔 | 胜率 |\n|---|---|---|---|---|---|\n| ${d.pnl||''} | ${d.pnlpct||''} | ${d.ops||''} | ${d.wins||''} | ${d.losses||''} | ${d.wr||''} |\n\n`;
+  const rows=(d.trades||[]).filter(t=>t.stock).map(t=>`| ${t.date} | ${t.stock} | ${t.dir} | ${t.reason} | ${t.result} | ${t.pnl} |`).join('\n');
+  if(rows) md+=`## 交易记录\n\n| 日期 | 股票 | 方向 | 入场理由 | 结果 | 盈亏% |\n|---|---|---|---|---|---|\n${rows}\n\n`;
+  md+=`## 规则执行（评分：${'★'.repeat(stars)}${'☆'.repeat(5-stars)}）\n\n`;
+  md+=labels.map((l,i)=>`- [${(d.checks||[])[i]?'x':' '}] ${l}`).join('\n')+'\n\n';
+  if(d.sum)  md+=`## 本月总结\n\n${d.sum}\n\n`;
+  if(d.best) md+=`## 本月最佳操作\n\n${d.best}\n\n`;
+  if(d.worst) md+=`## 踩坑记录\n\n${d.worst}\n\n`;
+  if((d.emotions||[]).length||d.emo){md+=`## 情绪管理\n\n`;if((d.emotions||[]).length)md+=`**本月情绪：** ${d.emotions.join('、')}\n\n`;if(d.emo)md+=`${d.emo}\n\n`;}
+  if(d.hold) md+=`## 月末持仓状态\n\n${d.hold}\n\n`;
+  if(d.next) md+=`## 下月重点计划\n\n${d.next}\n\n`;
+  return md;
+}
+
+// 日记导出弹窗
+function openDailyExportModal() {
+  saveDailyNow();
+  document.getElementById('dailyExportModal').classList.add('show');
+}
+function doExportDaily() {
+  closeModal('dailyExportModal');
+  const from=document.getElementById('dailyExportFrom').value;
+  const to=document.getElementById('dailyExportTo').value;
+  if(!from||!to){showToast('请选择日期范围');return;}
+  let md=`# 每日复盘记录\n\n`, count=0;
+  let cur=new Date(from), end=new Date(to);
+  while(cur<=end){
+    const ds=cur.toISOString().slice(0,10);
+    const raw=localStorage.getItem('daily_'+ds);
+    if(raw){md+=buildDailyMD(ds,JSON.parse(raw))+'\n---\n\n';count++;}
+    cur.setDate(cur.getDate()+1);
+  }
+  if(!count){showToast('所选时间段内无记录');return;}
+  downloadMD(md, `日记_${from}_${to}.md`);
+  showToast(`已导出 ${count} 天记录`);
+}
+function buildDailyMD(date, d) {
+  let md=`## ${date}\n\n`;
+  if(d.market) md+=`**大盘状态**\n\n${d.market}\n\n`;
+  if(d.hold)   md+=`**持仓观察**\n\n${d.hold}\n\n`;
+  if(d.action) md+=`**今日操作**\n\n${d.action}\n\n`;
+  if(d.plan)   md+=`**明日计划**\n\n${d.plan}\n\n`;
+  if(d.note)   md+=`**今日心得**\n\n${d.note}\n\n`;
+  return md;
+}
+
+// 存档
+function downloadMD(content, filename) {
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([content],{type:'text/markdown;charset=utf-8'}));
+  a.download=filename; a.click();
+}
+function exportJSON() {
+  const all={};
+  for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&(k.startsWith('journal_')||k.startsWith('daily_')||k==='calc_positions'))try{all[k]=JSON.parse(localStorage.getItem(k));}catch(e){}}
+  const out={version:'2.0',exported:new Date().toISOString().slice(0,10),data:all};
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(out,null,2)],{type:'application/json'}));
+  a.download=`交易系统存档_${out.exported}.json`; a.click();
+  showToast('存档已导出');
+}
+function importJSON(input) {
+  const file=input.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const obj=JSON.parse(e.target.result), data=obj.data||obj; let count=0;
+      Object.keys(data).forEach(k=>{if(k.startsWith('journal_')||k.startsWith('daily_')||k==='calc_positions'){localStorage.setItem(k,JSON.stringify(data[k]));count++;}});
+      populateYearPicker(); loadJournal(); loadCalcData(); loadDailyFromStorage(currentDate);
+      showToast(`已导入 ${count} 条记录`);
+    }catch{showToast('导入失败，请检查文件格式');}
+  };
+  reader.readAsText(file); input.value='';
+}
+</script>
+</body>
+</html>
